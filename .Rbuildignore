@@ -1,0 +1,12 @@
+^dagger\.Rproj$
+^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^LICENSE\.md$
+^cran-comments\.md$
+^README\.Rmd$
+^\.github$
+^codecov\.yml$
+R/dev\.R$
+^sandbox\.R$
