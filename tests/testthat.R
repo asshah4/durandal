@@ -1,4 +1,4 @@
 library(testthat)
-library(dagger)
+library(durandal)
 
-test_check("dagger")
+test_check("durandal")

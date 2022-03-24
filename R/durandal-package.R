@@ -10,5 +10,5 @@ NULL
 #'
 #' @import vctrs
 #' @keywords internal
-#' @name path-vctrs
+#' @name durandal-vctrs
 NULL

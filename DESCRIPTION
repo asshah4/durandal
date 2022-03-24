@@ -1,5 +1,5 @@
-Package: dagger
-Title: What the Package Does (One Line, Title Case)
+Package: durandal
+Title: Directed Acyclic Graphs Using R And Archetypical Lines
 Version: 0.0.0.9000
 Authors@R: 
     person(
@@ -15,14 +15,16 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Depends:
-    R (>= 4.0)
+    R (>= 4.0),
+    vctrs (>= 0.3.8),
+    axe
 Imports: 
     methods,
     lifecycle,
-    vctrs (>= 0.3.8)
+    armour
 Suggests: 
     testthat (>= 3.0.0),
     covr
-URL: https://asshah4.github.io/dagger, https://github.com/asshah4/dagger
-BugReports: https://github.com/asshah4/dagger
+URL: https://asshah4.github.io/durandal, https://github.com/asshah4/durandal
+BugReports: https://github.com/asshah4/durandal
 Config/testthat/edition: 3

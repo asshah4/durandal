@@ -4,7 +4,7 @@
 \name{dagger-package}
 \alias{dagger}
 \alias{dagger-package}
-\title{dagger: What the Package Does (One Line, Title Case)}
+\title{dagger: Directed Acyclic Graphs Generating Exploratory Research}
 \description{
 What the package does (one paragraph).
 }
