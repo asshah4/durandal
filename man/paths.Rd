@@ -4,22 +4,44 @@
 \alias{paths}
 \alias{paths.character}
 \alias{paths.default}
-\title{paths vector}
+\title{Pathways}
 \usage{
 paths(x = unspecified(), ...)
 
-\method{paths}{character}(
-  x = character(),
-  y = character(),
-  role_x = character(),
-  role_y = character(),
-  label_x = character(),
-  label_y = character(),
-  ...
-)
+\method{paths}{character}(x = character(), to = character(), role = list(), label = list(), ...)
 
 \method{paths}{default}(x = unspecified(), ...)
 }
-\description{
-paths vector
+\arguments{
+\item{x}{An object of the following types}
+
+\item{role}{Specific roles the variable plays within the formula. These are
+of particular importance, as they serve as special terms that can effect
+how a formula is interpreted. The options for roles are as below:
+\itemize{
+\item \strong{exposure}: predictor variable that serves as a primary or key
+variable in the \eqn{Exposure ~ Outcome} relationship
+\item \strong{outcome}: outcome/dependent variable that serves as an individual
+variable in the \eqn{Exposure ~ Outcome} relationship
+\item \strong{covariate}: predictor variable that is used to adjust/control for an
+additional primary variable
+\item \strong{mediator}: predictor variable that is thought to be a causal
+intermediary in the \eqn{Exposure -> Mediator -> Outcome} pathway
+\item \strong{confounder}: predictor variable that is thought to be a confounder of
+the causal relationship in the \eqn{Exposure <- Confounder -> Outcome}
+pathway
+\item \strong{unknown}: default role of a variable that has not yet been assigned a
+place, such as a potential intermediary object
+}}
+
+\item{label}{Display-quality label describing the variable}
 }
+\description{
+Pathways
+}
+\section{List~Formula Arguments}{
+
+
+The \strong{role} and \strong{label} arguments should be provided as a list of formulas.
+}
+

@@ -2,14 +2,16 @@
 % Please edit documentation in R/stacks.R
 \name{path_stack}
 \alias{path_stack}
-\alias{stack_paths}
-\alias{stack_paths.vctrs_path}
-\title{Path stack vector}
+\alias{path_stack.paths}
+\alias{path_stack.default}
+\title{Stacks}
 \usage{
-stack_paths(f, ...)
+path_stack(x = unspecified(), ...)
 
-\method{stack_paths}{vctrs_path}(f, roles, labels, ...)
+\method{path_stack}{paths}(x = paths(), ...)
+
+\method{path_stack}{default}(x = unspecified(), ...)
 }
 \description{
-Path stack vector
+Stacks
 }

@@ -3,7 +3,15 @@
 # Example:
 #		y ~ x
 
-#' paths vector
+#' Pathways
+#'
+#' @param x An object of the following types
+#'
+#' @inheritParams asklepian::term
+#'
+#' @section List~Formula Arguments:
+#'
+#' The __role__ and __label__ arguments should be provided as a list of formulas.
 #' @export
 #' @name paths
 paths <- function(x = unspecified(), ...) {
@@ -13,7 +21,7 @@ paths <- function(x = unspecified(), ...) {
 #' @rdname paths
 #' @export
 paths.character <- function(x = character(),
-														y = character(),
+														to = character(),
 														role = list(),
 														label = list(),
 														...) {
@@ -21,16 +29,23 @@ paths.character <- function(x = character(),
 	# Transform into terms, with expectation of Y ~ X
 	from <-
 		term(x,
-				 side = "right")
+				 side = "right",
+				 role = "unknown")
 
 	to <-
-		term(y,
-				 side = "right")
+		term(to,
+				 side = "left",
+				 role = "unknown")
+
+	tm <-
+		c(from, to) |>
+		set_roles(roles = asklepian:::formula_args_to_list(role)) |>
+		set_labels(labels = asklepian:::formula_args_to_list(label))
+
 
 	new_paths(
-		from = from,
-		to = to,
-		direction = direction
+		from = tm[1],
+		to = tm[2]
 	)
 
 }
@@ -49,6 +64,7 @@ paths.default <- function(x = unspecified(), ...) {
 			 call. = FALSE)
 
 }
+
 # Record Definition ------------------------------------------------------------
 
 #' paths records
@@ -60,13 +76,11 @@ new_paths <- function(from = term(),
 	vec_assert(from, ptype = term())
 	vec_assert(to, ptype = term())
 
-	new_rcrd(list(
-			"from" = from,
-			"to" = to,
-			"direction" = direction
-		),
-		class = "paths"
-	)
+	new_rcrd(fields = list(
+		"from" = from,
+		"to" = to
+	),
+	class = "paths")
 
 }
 
@@ -87,11 +101,11 @@ format.paths <- function(x, ...) {
 
 		for (i in seq_along(x)) {
 			# Obtain components
-			f <- field(x[i], "from") |> as.character()
-			t <- field(x[i], "to") |> as.character()
+			f <- field(x[i], "from")
+			t <- field(x[i], "to")
 
 			# Formula notation
-			fmt_px <- append(fmt_px, paste(t, "~", f))
+			fmt_px <- append(fmt_px, paste(format(t), "~", format(f)))
 		}
 	}
 
