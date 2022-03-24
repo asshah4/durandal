@@ -24,4 +24,20 @@ test_that("path stack can be made from paths", {
 	ps <- path_stack(x)
 	expect_length(ps, 3)
 	expect_output(print(ps), "path_stack")
+
+	# Tibble output check for abbreviations
+	# Tibble
+	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
+		tibble::tibble(ps) |>
+			print() |>
+			expect_output("<pth_stk>")
+	}
+
+})
+
+test_that("path stacks error appropriately", {
+
+	# Empty
+	expect_length(path_stack(), 0)
+	expect_error(path_stack("test"))
 })
