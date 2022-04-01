@@ -148,6 +148,21 @@ vec_cast.paths.paths <- function(x, y, ...) {
 }
 
 #' @export
+vec_ptype2.paths.character <- function(x, y, ...) {
+	y
+}
+
+#' @export
+vec_ptype2.character.paths <- function(x, y, ...) {
+	x
+}
+
+#' @export
+vec_cast.character.paths <- function(x, to, ...) {
+	format(x)
+}
+
+#' @export
 formula.paths <- function(x, ...) {
-	stats::as.formula(x)
+	lapply(x, FUN = stats::as.formula)
 }
