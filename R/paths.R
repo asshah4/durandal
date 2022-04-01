@@ -7,7 +7,7 @@
 #'
 #' @param x An object of the following types
 #'
-#' @inheritParams asklepian::term
+#' @inheritParams archetypes::term_archetype
 #'
 #' @section List~Formula Arguments:
 #'
@@ -28,19 +28,19 @@ paths.character <- function(x = character(),
 
 	# Transform into terms, with expectation of Y ~ X
 	from <-
-		term(x,
+		term_archetype(x,
 				 side = "right",
 				 role = "unknown")
 
 	to <-
-		term(to,
+		term_archetype(to,
 				 side = "left",
 				 role = "unknown")
 
 	tm <-
 		c(from, to) |>
-		set_roles(roles = asklepian:::formula_args_to_list(role)) |>
-		set_labels(labels = asklepian:::formula_args_to_list(label))
+		set_roles(roles = archetypes:::formula_args_to_list(role)) |>
+		set_labels(labels = archetypes:::formula_args_to_list(label))
 
 
 	new_paths(
@@ -58,7 +58,7 @@ paths.default <- function(x = unspecified(), ...) {
 		return(new_paths())
 	}
 
-	stop("`term()` is not defined for a `",
+	stop("`paths()` is not defined for a `",
 			 class(x)[1],
 			 "` object.",
 			 call. = FALSE)
@@ -70,11 +70,11 @@ paths.default <- function(x = unspecified(), ...) {
 #' paths records
 #' @keywords internal
 #' @noRd
-new_paths <- function(from = term(),
-											to = term()) {
+new_paths <- function(from = term_archetype(),
+											to = term_archetype()) {
 	# Terms
-	vec_assert(from, ptype = term())
-	vec_assert(to, ptype = term())
+	vec_assert(from, ptype = term_archetype())
+	vec_assert(to, ptype = term_archetype())
 
 	new_rcrd(fields = list(
 		"from" = from,
@@ -93,10 +93,10 @@ methods::setOldClass(c("paths", "vctrs_vctr"))
 #' @export
 format.paths <- function(x, ...) {
 
-	fmt_px <- character()
+	fmt <- character()
 
 	if (vec_size(x) == 0) {
-		fmt_px <- new_paths()
+		fmt <- new_paths()
 	} else {
 
 		for (i in seq_along(x)) {
@@ -105,12 +105,12 @@ format.paths <- function(x, ...) {
 			t <- field(x[i], "to")
 
 			# Formula notation
-			fmt_px <- append(fmt_px, paste(format(t), "~", format(f)))
+			fmt <- append(fmt, paste(format(t), "~", format(f)))
 		}
 	}
 
 	# Return
-	fmt_px
+	fmt
 }
 
 #' @export
@@ -132,7 +132,7 @@ vec_ptype_full.paths <- function(x, ...) {
 
 #' @export
 vec_ptype_abbr.paths <- function(x, ...) {
-	"px"
+	"pt"
 }
 
 # Casting and coercion ---------------------------------------------------------
@@ -145,4 +145,9 @@ vec_ptype2.paths.paths <- function(x, y, ...) {
 #' @export
 vec_cast.paths.paths <- function(x, y, ...) {
 	x
+}
+
+#' @export
+formula.paths <- function(x, ...) {
+	stats::as.formula(x)
 }
