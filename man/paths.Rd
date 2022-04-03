@@ -8,7 +8,14 @@
 \usage{
 paths(x = unspecified(), ...)
 
-\method{paths}{character}(x = character(), to = character(), role = list(), label = list(), ...)
+\method{paths}{character}(
+  x = character(),
+  to = character(),
+  role = list(),
+  label = list(),
+  family = character(),
+  ...
+)
 
 \method{paths}{default}(x = unspecified(), ...)
 }

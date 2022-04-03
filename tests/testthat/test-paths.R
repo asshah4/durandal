@@ -30,6 +30,10 @@ test_that("an atomic path vector/record can be made", {
 
 })
 
+test_that("formula can break down into a path", {
+
+})
+
 test_that("coercion is appropriate", {
 
 	# Characters
