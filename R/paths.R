@@ -42,10 +42,13 @@ paths.character <- function(x = character(),
 		set_roles(roles = archetypes:::formula_args_to_list(role)) |>
 		set_labels(labels = archetypes:::formula_args_to_list(label))
 
+	# Recreate formula
+	f <- formula_archetype(tm)
 
 	new_paths(
 		from = tm[1],
-		to = tm[2]
+		to = tm[2],
+		formula = f
 	)
 
 }
@@ -71,14 +74,17 @@ paths.default <- function(x = unspecified(), ...) {
 #' @keywords internal
 #' @noRd
 new_paths <- function(from = term_archetype(),
-											to = term_archetype()) {
+											to = term_archetype(),
+											track = formula_archetype()) {
 	# Terms
 	vec_assert(from, ptype = term_archetype())
 	vec_assert(to, ptype = term_archetype())
+	vec_assert(track, ptype = formula_archetype())
 
 	new_rcrd(fields = list(
 		"from" = from,
-		"to" = to
+		"to" = to,
+		"track" = track,
 	),
 	class = "paths")
 
