@@ -43,24 +43,10 @@ paths.character <- function(x = character(),
 		set_roles(roles = archetypes:::formula_args_to_list(role)) |>
 		set_labels(labels = archetypes:::formula_args_to_list(label))
 
-<<<<<<< HEAD
-	# Source or etiology
-	if (length(family) == 0) {
-		family <- "independent"
-	}
-=======
-	# Recreate formula
-	f <- formula_archetype(tm)
->>>>>>> 0155f1dd796cc13b5587944f3301cc8a5226c18a
 
 	new_paths(
 		from = tm[1],
-		to = tm[2],
-<<<<<<< HEAD
-		family = familly
-=======
-		formula = f
->>>>>>> 0155f1dd796cc13b5587944f3301cc8a5226c18a
+		to = tm[2]
 	)
 
 }
@@ -86,14 +72,17 @@ paths.default <- function(x = unspecified(), ...) {
 #' @keywords internal
 #' @noRd
 new_paths <- function(from = term_archetype(),
-											to = term_archetype()) {
+											to = term_archetype(),
+											track = formula_archetype()) {
 	# Terms
 	vec_assert(from, ptype = term_archetype())
 	vec_assert(to, ptype = term_archetype())
+	vec_assert(track, ptype = formula_archetype())
 
 	new_rcrd(fields = list(
 		"from" = from,
-		"to" = to
+		"to" = to,
+		"track" = track
 	),
 	class = "paths")
 
