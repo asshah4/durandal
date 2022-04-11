@@ -3,24 +3,29 @@
 \name{paths}
 \alias{paths}
 \alias{paths.character}
+\alias{paths.formula}
+\alias{paths.script}
 \alias{paths.default}
 \title{Pathways}
 \usage{
 paths(x = unspecified(), ...)
 
-\method{paths}{character}(
-  x = character(),
-  to = character(),
-  role = list(),
-  label = list(),
-  family = character(),
-  ...
-)
+\method{paths}{character}(x, to = character(), role = list(), tier = list(), label = list(), ...)
+
+\method{paths}{formula}(x, role = list(), tier = list(), label = list(), ...)
+
+\method{paths}{script}(x, ...)
 
 \method{paths}{default}(x = unspecified(), ...)
 }
 \arguments{
-\item{x}{An object of the following types}
+\item{x}{An object of the following types:
+\itemize{
+\item \code{character} where \strong{x} is the start of the \emph{path} and \strong{to} is the end
+of the \emph{path}
+\item \code{formula} from \code{\link[stats:formula]{stats::formula()}}
+\item \code{script} object from \code{\link[archetypes:script]{archetypes::prescribe()}}
+}}
 
 \item{role}{Specific roles the variable plays within the formula. These are
 of particular importance, as they serve as special terms that can effect
@@ -42,6 +47,9 @@ interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
 place, such as a potential intermediary object
 }}
 
+\item{tier}{Grouping variable name for independent variables for modeling
+terms together}
+
 \item{label}{Display-quality label describing the variable}
 }
 \description{
@@ -50,6 +58,15 @@ Pathways
 \section{List~Formula Arguments}{
 
 
-The \strong{role} and \strong{label} arguments should be provided as a list of formulas.
+The \strong{role} and \strong{label} arguments should be provided as a list of
+formulas. For the arguments that would be dispatched for objects that are
+plural, e.g. containing multiple terms such as a \code{formula} object, the input
+should be wrapped within a \code{list()}.
+
+For example, for the \strong{role} argument, it would be written:
+
+\code{role = list(X ~ "exposure", Y ~ "outcome", M ~ "mediator")}
+
+This applies for all others plural objects and arguments.
 }
 
