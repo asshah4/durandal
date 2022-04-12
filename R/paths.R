@@ -86,12 +86,21 @@ paths.formula <- function(x,
   t <-
     tm(x) |>
     set_roles(roles = archetypes:::formula_args_to_list(role)) |>
-    set_tier(tiers = archetypes:::formula_args_to_list(tier)) |>
+    set_tiers(tiers = archetypes:::formula_args_to_list(tier)) |>
     set_labels(labels = archetypes:::formula_args_to_list(label))
-  td <- vec_data(t)
-  f <- fmls(x)
-  fd <- vec_data(f)
 
+  # Create list of paths from terms
+  f <- deparse1(stats::formula(t)) # Trace/parent
+  fl <- fmls(x, order = 1) # Unit level paths
+  pl <- paths() # List of paths
+  for (i in seq_along(fl)) {
+  	p <- new_paths(
+  		from = archetypes:::match_terms(t, stats::formula(rhs(fl[i]))),
+  		to = archetypes:::match_terms(t, stats::formula(lhs(fl[i]))),
+  		trace = f
+  	)
+  	pl <- append(pl, p)
+  }
   # Break into individual paths
   left <-
     td[td$side == "left", ] |>
