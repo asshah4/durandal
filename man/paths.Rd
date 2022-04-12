@@ -29,26 +29,25 @@ of the \emph{path}
 
 \item{role}{Specific roles the variable plays within the formula. These are
 of particular importance, as they serve as special terms that can effect
-how a formula is interpreted. The options for roles are as below:
+how a formula is interpreted. Please see the \emph{Roles} section below for
+further details. The options for roles are as below:
 \itemize{
 \item \strong{outcome}: outcome/dependent variable that serves as an individual
-variable in the \eqn{exposure -> outcome} relationship (DEFAULT for left
-sided variables)
-\item \strong{predictor}: predictor variable that is non-specific but decidedly on
-the right-hand side of an equation (DEFAULT for right sided variables)
+variable in the \eqn{exposure -> outcome} relationship (DEFAULT for LHS variables)
+\item \strong{predictor}: predictors of the outcomes (DEFAULT for RHS variables)
+\item \strong{exposure}: predictor variable that serves as a primary or key
+variable in the \eqn{exposure -> outcome} relationship
 \item \strong{confounder}: predictor variable that is thought to be a confounder of
 the causal relationship in the \eqn{exposure <- confounder -> outcome}
 pathway, normally thought of as an adjustment or controlling variable
-\item \strong{exposure}: predictor variable that serves as a primary or key
-variable in the \eqn{exposure -> outcome} relationship
 \item \strong{mediator}: predictor variable that is thought to be a causal
 interm_archetypeediary in the \eqn{exposure -> mediator -> outcome} pathway
 \item \strong{unknown}: default role of a variable that has not yet been assigned a
 place, such as a potential intermediary object
 }}
 
-\item{tier}{Grouping variable name for independent variables for modeling
-terms together}
+\item{tier}{Grouping variable names for covariates or \strong{confounders} for
+modeling terms together}
 
 \item{label}{Display-quality label describing the variable}
 }

@@ -59,9 +59,9 @@ paths.character <- function(x,
 
   tm <-
     c(from, to) |>
-    set_roles(roles = archetypes:::formula_args_to_list(role)) |>
-    set_tier(tiers = archetypes:::formula_args_to_list(tier)) |>
-    set_labels(labels = archetypes:::formula_args_to_list(label))
+    set_roles(roles = formula_to_named_list(role)) |>
+    set_tier(tiers = formula_to_named_list(tier)) |>
+    set_labels(labels = formula_to_named_list(label))
 
   # Will need to trace underlying source or family for the function
   f <- formula_archetype(tm)
@@ -85,43 +85,28 @@ paths.formula <- function(x,
   # Obtain formula components
   t <-
     tm(x) |>
-    set_roles(roles = archetypes:::formula_args_to_list(role)) |>
-    set_tiers(tiers = archetypes:::formula_args_to_list(tier)) |>
-    set_labels(labels = archetypes:::formula_args_to_list(label))
+    set_roles(roles = formula_to_named_list(role)) |>
+    set_tiers(tiers = formula_to_named_list(tier)) |>
+    set_labels(labels = formula_to_named_list(label))
 
   # Create list of paths from terms
   f <- deparse1(stats::formula(t)) # Trace/parent
-  fl <- fmls(x, order = 1) # Unit level paths
+
+  # Unit level tests
+  fl <-
+  	fmls(x, order = 1:4) |>
+  	{
+  		\(.x) .x[field(.x, "n") == 2]
+  	}()
+
   pl <- paths() # List of paths
   for (i in seq_along(fl)) {
   	p <- new_paths(
-  		from = archetypes:::match_terms(t, stats::formula(rhs(fl[i]))),
-  		to = archetypes:::match_terms(t, stats::formula(lhs(fl[i]))),
+  		from = archetypes:::match_terms(t, rhs(fl[i])),
+  		to = archetypes:::match_terms(t, lhs(fl[i])),
   		trace = f
   	)
   	pl <- append(pl, p)
-  }
-  # Break into individual paths
-  left <-
-    td[td$side == "left", ] |>
-    vec_restore(to = term_archetype())
-
-  right <-
-    td[td$side == "right", ] |>
-    vec_restore(to = term_archetype())
-
-  # Create combination paths
-  pl <- paths()
-
-  for (i in seq_along(left)) {
-    for (j in seq_along(right)) {
-      p <- new_paths(
-        from = right[j],
-        to = left[i],
-        trace = f
-      )
-      pl <- append(pl, p)
-    }
   }
 
   # Return
@@ -133,38 +118,28 @@ paths.formula <- function(x,
 paths.script <- function(x,
 												 ...) {
 
-	t <- field(x, "terms")[[1]]
-	td <- vec_data(t)
-	lof <- fmls(x, order = 1)
+  # Obtain formula components
+  t <- tm(x)
 
-	# New potential path lists
-  pl <- paths()
+  # Create list of paths from terms
+  f <- deparse1(stats::formula(t)) # Trace/parent
 
-	for (i in seq_along(lof)) {
-		f <- lof[i]
-		left <- lhs(f)
-		right <- rhs(f)
-		for (j in left) {
-			left_term <-
-				td[td$terms == j, ] |>
-				vec_restore(to = term_archetype())
-			for (k in right) {
-				right_term <-
-					td[td$terms == k, ] |>
-					vec_restore(to = term_archetype())
+  # Unit level tests
+  fl <-
+  	fmls(x, order = 1:4) |>
+  	{
+  		\(.x) .x[field(.x, "n") == 2]
+  	}()
 
-				# New path
-				p <- new_paths(
-					from = right_term,
-					to = left_term,
-					trace = f
-				)
-
-	      pl <- append(pl, p)
-
-			}
-		}
-	}
+  pl <- paths() # List of paths
+  for (i in seq_along(fl)) {
+  	p <- new_paths(
+  		from = archetypes:::match_terms(t, rhs(fl[i])),
+  		to = archetypes:::match_terms(t, lhs(fl[i])),
+  		trace = f
+  	)
+  	pl <- append(pl, p)
+  }
 
   # Return
   pl
@@ -186,18 +161,18 @@ paths.default <- function(x = unspecified(), ...) {
   )
 }
 
-# Record Definition ------------------------------------------------------------
+# Path Record Definition -------------------------------------------------------
 
 #' paths records
 #' @keywords internal
 #' @noRd
 new_paths <- function(from = term_archetype(),
                       to = term_archetype(),
-                      trace = formula_archetype()) {
+                      trace = character()) {
   # Terms
   vec_assert(from, ptype = term_archetype())
   vec_assert(to, ptype = term_archetype())
-  vec_assert(trace, ptype = formula_archetype())
+  vec_assert(trace, ptype = character())
 
   new_rcrd(
     fields = list(
