@@ -131,6 +131,9 @@ paths.script <- function(x,
   		\(.x) .x[field(.x, "n") == 2]
   	}()
 
+  		from = archetypes:::match_terms(t, rhs(fl[i]))
+  		to = archetypes:::match_terms(t, lhs(fl[i]))
+
   pl <- paths() # List of paths
   for (i in seq_along(fl)) {
   	p <- new_paths(
