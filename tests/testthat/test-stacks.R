@@ -10,7 +10,7 @@ test_that("path stack can be made from paths", {
 	p2 <- paths(
 		x = "M",
 		to = "Y",
-		role = list(M ~ "mediator", Y ~ "covariate"),
+		role = list(M ~ "mediator", Y ~ "confounder"),
 		label = list(M ~ "Intermediary Variable", Y ~ "Dependent Variable")
 	)
 	p3 <- paths(

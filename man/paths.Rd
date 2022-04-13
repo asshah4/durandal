@@ -10,7 +10,15 @@
 \usage{
 paths(x = unspecified(), ...)
 
-\method{paths}{character}(x, to = character(), role = list(), tier = list(), label = list(), ...)
+\method{paths}{character}(
+  x,
+  to = character(),
+  role = list(),
+  tier = list(),
+  label = list(),
+  parent = character(),
+  ...
+)
 
 \method{paths}{formula}(x, role = list(), tier = list(), label = list(), ...)
 

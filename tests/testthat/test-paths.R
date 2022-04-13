@@ -54,8 +54,7 @@ test_that("simple and complex formulas can break down into a path", {
 
 	x <- rx(mpg + wt ~ X(hp) + M(cyl) + qsec + gear, pattern = "sequential")
 	p <- paths(x)
-	expect_length(p, 20)
-
+	expect_length(p, 11)
 
 })
 
@@ -81,3 +80,4 @@ test_that("coercion is appropriate", {
 
 
 })
+

@@ -42,6 +42,7 @@ paths.character <- function(x,
                             role = list(),
 														tier = list(),
                             label = list(),
+														parent = character(),
                             ...) {
 
   # Transform into terms, with expectation of Y ~ X
@@ -60,11 +61,19 @@ paths.character <- function(x,
   tm <-
     c(from, to) |>
     set_roles(roles = formula_to_named_list(role)) |>
-    set_tier(tiers = formula_to_named_list(tier)) |>
+    set_tiers(tiers = formula_to_named_list(tier)) |>
     set_labels(labels = formula_to_named_list(label))
 
   # Will need to trace underlying source or family for the function
-  f <- formula_archetype(tm)
+  if (length(parent) == 0) {
+  	f <-
+  		formula_archetype(tm, order = 1:4) |>
+  		{
+  			\(.x) field(.x, "formula")[field(.x, "n") == 2]
+  		}()
+  } else {
+  	f <- parent
+  }
 
   new_paths(
     from = tm[1],
