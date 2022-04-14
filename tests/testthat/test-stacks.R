@@ -1,3 +1,29 @@
+test_that("new_path_stack() can be generated and printed", {
+
+	# Empty arguments
+	from <- to <- term_archetype()
+	formula <- formula_archetype()
+	model <- character()
+	estimate <- statistic <- p.value <- conf.low <- conf.high <- numeric()
+
+	# Combine into tibble
+	x <- tibble::tibble(
+		from = from,
+		to = to,
+		formula = formula,
+		model = model,
+		estimate = estimate,
+		statistic = statistic,
+		p.value = p.value,
+		conf.low = conf.low,
+		conf.high = conf.high
+	)
+
+	# New stack
+	x <- new_path_stack()
+
+})
+
 test_that("path stack can be made from paths", {
 
 	# Vector of paths

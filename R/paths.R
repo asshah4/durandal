@@ -67,7 +67,7 @@ paths.character <- function(x,
   # Will need to trace underlying source or family for the function
   if (length(parent) == 0) {
   	f <-
-  		formula_archetype(tm, order = 1:4) |>
+  		formula_archetype(t, order = 1:4) |>
   		{
   			\(.x) field(.x, "formula")[field(.x, "n") == 2]
   		}()

@@ -54,12 +54,7 @@ test_that("simple and complex formulas can break down into a path", {
 
 	x <- rx(mpg ~ X(hp) + M(cyl) + qsec + gear, pattern = "sequential")
 	p <- paths(x)
-<<<<<<< HEAD
-	expect_length(p, 11)
-=======
 	expect_length(p, 7)
-
->>>>>>> 0fd1c5903fd09c3455aeee753256bcedbd94ddf2
 
 })
 
@@ -82,7 +77,6 @@ test_that("coercion is appropriate", {
 	expect_s3_class(formula(pv)[[1]], "formula")
 	expect_length(formula(pv), 3)
 	expect_type(pc, "character")
-
 
 })
 
