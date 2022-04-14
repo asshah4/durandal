@@ -21,7 +21,7 @@ test_that("path stack can be made from paths", {
 	)
 	x <- c(p1, p2, p3)
 
-	ps <- path_stack(x)
+	s <- path_stack(x)
 	expect_length(ps, 3)
 	expect_output(print(ps), "path_stack")
 

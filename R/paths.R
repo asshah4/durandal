@@ -58,7 +58,7 @@ paths.character <- function(x,
       role = "unknown"
     )
 
-  tm <-
+  t <-
     c(from, to) |>
     set_roles(roles = formula_to_named_list(role)) |>
     set_tiers(tiers = formula_to_named_list(tier)) |>
@@ -76,8 +76,8 @@ paths.character <- function(x,
   }
 
   new_paths(
-    from = tm[1],
-    to = tm[2],
+    from = t[1],
+    to = t[2],
     trace = f
   )
 }
@@ -139,9 +139,6 @@ paths.script <- function(x,
   	{
   		\(.x) .x[field(.x, "n") == 2]
   	}()
-
-  		from = archetypes:::match_terms(t, rhs(fl[i]))
-  		to = archetypes:::match_terms(t, lhs(fl[i]))
 
   pl <- paths() # List of paths
   for (i in seq_along(fl)) {
