@@ -52,9 +52,9 @@ test_that("simple and complex formulas can break down into a path", {
 	p <- paths(x)
 	expect_length(p, 8)
 
-	x <- rx(mpg + wt ~ X(hp) + M(cyl) + qsec + gear, pattern = "sequential")
+	x <- rx(mpg ~ X(hp) + M(cyl) + qsec + gear, pattern = "sequential")
 	p <- paths(x)
-	expect_length(p, 20)
+	expect_length(p, 7)
 
 
 })

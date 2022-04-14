@@ -2,15 +2,9 @@
 % Please edit documentation in R/stacks.R
 \name{path_stack}
 \alias{path_stack}
-\alias{path_stack.paths}
-\alias{path_stack.default}
 \title{Stacks}
 \usage{
-path_stack(x = unspecified(), ...)
-
-\method{path_stack}{paths}(x = paths(), ...)
-
-\method{path_stack}{default}(x = unspecified(), ...)
+path_stack(...)
 }
 \description{
 Stacks

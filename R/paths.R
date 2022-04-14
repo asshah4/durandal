@@ -42,6 +42,7 @@ paths.character <- function(x,
                             role = list(),
 														tier = list(),
                             label = list(),
+														parent = character(),
                             ...) {
 
   # Transform into terms, with expectation of Y ~ X
@@ -57,18 +58,26 @@ paths.character <- function(x,
       role = "unknown"
     )
 
-  tm <-
+  t <-
     c(from, to) |>
     set_roles(roles = formula_to_named_list(role)) |>
-    set_tier(tiers = formula_to_named_list(tier)) |>
+    set_tiers(tiers = formula_to_named_list(tier)) |>
     set_labels(labels = formula_to_named_list(label))
 
   # Will need to trace underlying source or family for the function
-  f <- formula_archetype(tm)
+  if (length(parent) == 0) {
+	  f <-
+	  	formula_archetype(t, order = 1:4) |>
+	  	{
+	  		\(.x) field(.x, "formula")[field(.x, "n") == 2]
+	  	}()
+  } else {
+  	f <- parent
+  }
 
   new_paths(
-    from = tm[1],
-    to = tm[2],
+    from = t[1],
+    to = t[2],
     trace = f
   )
 }
@@ -130,9 +139,6 @@ paths.script <- function(x,
   	{
   		\(.x) .x[field(.x, "n") == 2]
   	}()
-
-  		from = archetypes:::match_terms(t, rhs(fl[i]))
-  		to = archetypes:::match_terms(t, lhs(fl[i]))
 
   pl <- paths() # List of paths
   for (i in seq_along(fl)) {
