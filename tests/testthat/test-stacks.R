@@ -19,8 +19,13 @@ test_that("new_path_stack() can be generated and printed", {
 		conf.high = conf.high
 	)
 
+	expect_equal(nrow(x), 0)
+
 	# New stack
-	x <- new_path_stack()
+	ps <- new_path_stack()
+	expect_s3_class(ps, "path_stack")
+	expect_length(ps, 9)
+	expect_equal(nrow(ps), 0)
 
 })
 
@@ -50,14 +55,6 @@ test_that("path stack can be made from paths", {
 	s <- path_stack(x)
 	expect_length(ps, 3)
 	expect_output(print(ps), "path_stack")
-
-	# Tibble output check for abbreviations
-	# Tibble
-	if (isTRUE(requireNamespace("tibble", quietly = TRUE))) {
-		tibble::tibble(ps) |>
-			print() |>
-			expect_output("<pth_stk>")
-	}
 
 })
 

@@ -24,18 +24,33 @@ path_stack <- function(...) {
 		new_path_stack()
 	}
 
+
+	# Initialized variables
+	from_list <- to_list <- term_archetype()
+	formula_list <- formula_archetype()
+	model_list <- character()
+	est_list <- stat_list <- p_list <- conf_low_list <- conf_high_list <- numeric()
+
 	for (i in seq_along(dots)) {
 		validate_class(dots[i], c("paths", "model_archetype"))
+
+		if (class(dots[i]) == "paths") {
+
+		}
 	}
 
-	t <- tibble::tibble(
-		from = field(p, "from"),
-		to = field(p, "to"),
-		formula = field(p, "trace")
-	)
-
 	# Create a path stack object for each member of hte path
-	new_path_stack(t)
+	new_path_stack(
+		from = from,
+		to = to,
+		formula = formula,
+		model = model,
+		estimate = estimate,
+		statistic = statistic,
+		p.value = p.value,
+		conf.low = conf.low,
+		conf.high = conf.high
+	)
 
 }
 
@@ -46,13 +61,35 @@ path_stack <- function(...) {
 #' @noRd
 new_path_stack <- function(from = term_archetype(),
 													 to = term_archetype(),
-													 formula = character()) {
+													 formula = formula_archetype(),
+													 model = character(),
+													 estimate = numeric(),
+													 statistic = numeric(),
+													 p.value = numeric(),
+													 conf.low = numeric(),
+													 conf.high = numeric()) {
+
+	vec_assert(from, ptype = term_archetype())
+	vec_assert(to, ptype = term_archetype())
+	vec_assert(formula, ptype = formula_archetype())
+	vec_assert(model, ptype = character())
+	vec_assert(estimate, ptype = numeric())
+	vec_assert(statistic, ptype = numeric())
+	vec_assert(p.value, ptype = numeric())
+	vec_assert(conf.low, ptype = numeric())
+	vec_assert(conf.high, ptype = numeric())
 
 	# Combine into tibble
 	x <- tibble::tibble(
 		from = from,
 		to = to,
-		formula = formula
+		formula = formula,
+		model = model,
+		estimate = estimate,
+		statistic = statistic,
+		p.value = p.value,
+		conf.low = conf.low,
+		conf.high = conf.high
 	)
 
 	# Validate composition
@@ -62,7 +99,7 @@ new_path_stack <- function(from = term_archetype(),
 	tibble::new_tibble(
 		x,
 		class = "path_stack",
-		nrow = length(x)
+		nrow = nrow(x)
 	)
 
 }
@@ -76,6 +113,7 @@ methods::setOldClass(c("path_stack", "vctrs_vctr"))
 #' @export
 print.path_stack <- function(x, ....) {
 	cat(sprintf("<%s>\n", class(x)[[1]]))
+	cli::cat_line(format(x)[-1])
 }
 
 #' @export
@@ -88,6 +126,12 @@ vec_ptype_abbr.path_stack <- function(x, ...) {
 	"pth_stk"
 }
 
+#' @importFrom pillar pillar_shaft
+#' @export
+pillar_shaft.path_stack <- function(x, ...) {
+	out <- format(x)
+	pillar::new_pillar_shaft_simple(out, align = "left")
+}
 
 # Casting and coercion ---------------------------------------------------------
 
