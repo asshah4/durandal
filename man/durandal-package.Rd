@@ -4,16 +4,15 @@
 \name{durandal-package}
 \alias{durandal}
 \alias{durandal-package}
-\title{durandal: Directed Acyclic Graphs Using R And Archetypical Lines}
+\title{durandal: Causal Chains and Connections}
 \description{
-What the package does (one paragraph).
+...
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://asshah4.github.io/durandal}
-  \item \url{https://github.com/asshah4/durandal}
-  \item Report bugs at \url{https://github.com/asshah4/durandal}
+  \item Report bugs at \url{https://github.com/asshah4/durandal/issues}
 }
 
 }
