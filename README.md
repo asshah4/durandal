@@ -16,7 +16,10 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 <!-- badges: end -->
 
 The goal of `durandal` is to cut through many models to understand
-relationships between variables.
+relationships between key terms. With “big data” and the numerous
+modeling options there are, there is trouble in understanding the
+relationship between how variables play different roles in explaining
+the *causal pie*.
 
 ## Installation
 
