@@ -25,6 +25,9 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     covr
+Remotes:
+		asshah4/arcana,
+		asshah4/volundr
 URL: https://asshah4.github.io/durandal
 BugReports: https://github.com/asshah4/durandal/issues
 Config/testthat/edition: 3
