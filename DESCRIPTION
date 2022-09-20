@@ -3,7 +3,7 @@ Title: Causal Chains and Connections
 Version: 0.0.0.9000
 Authors@R: 
     person(
-	    given = "Anish Sanjay", 
+	    given = "Anish S.", 
 	    family = "Shah", 
 	    email = "ashah282@uic.edu", 
 	    role = c("aut", "cre"),
@@ -22,12 +22,18 @@ Depends:
 Imports: 
     methods,
     lifecycle,
+    gt,
+    dplyr,
+    tibble,
 Suggests: 
     testthat (>= 3.0.0),
-    covr
+    covr,
+    knitr,
+    rmarkdown
 Remotes:
 		asshah4/arcana,
 		asshah4/volundr
 URL: https://asshah4.github.io/durandal
 BugReports: https://github.com/asshah4/durandal/issues
 Config/testthat/edition: 3
+VignetteBuilder: knitr

@@ -6,7 +6,7 @@
 \alias{durandal-package}
 \title{durandal: Causal Chains and Connections}
 \description{
-...
+Tools for cutting causal pie.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Anish Sanjay Shah \email{ashah282@uic.edu} (\href{https://orcid.org/0000-0002-9729-1558}{ORCID})
+\strong{Maintainer}: Anish S. Shah \email{ashah282@uic.edu} (\href{https://orcid.org/0000-0002-9729-1558}{ORCID})
 
 }
 \keyword{internal}

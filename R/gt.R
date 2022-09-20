@@ -1,6 +1,7 @@
-#' Subgroup Forest Plot
+#' Grouped Forest Plots
 #'
-#' @param x Class `forge` object with models that have been fit
+#' @param object A `forge` object that contains or represents model data, with
+#'   required grouping variables (such as strata or interaction terms).
 #'
 #' @param formula Identifies the relationships of interest, with LHS
 #'   representing the outcome, and RHS representing the exposure.
@@ -14,14 +15,18 @@
 #' @param interaction Logical value to identify if the model should attempt to
 #'   use interaction terms or not. Currently only accepts binary/dichotomous
 #'   variables as the interaction term.
+#'
 #' @param columns Additional columns that help to describe the subgroup models.
-#'   At least one column should be selected from this list. The sequence listed #'   will reflect the sequence shown in the table. The current options are:
+#'   At least one column should be selected from this list. The sequence listed
+#'   will reflect the sequence shown in the table. The current options are:
 #'
 #'   * beta = point estimate value, such as odds ratio or hazard ratio
 #'
 #'   * conf = inclusion of the confidence interval (presumed to be 95%-ile)
 #'
 #'   * n = number of observations in each model group
+#'
+#'   * p = p.value for model or interaction term
 #'
 #'   For example: `list(beta ~ "Hazard", conf ~ "95% CI" n ~ "No.")"`
 #'
@@ -56,27 +61,26 @@
 #' For example: `list(n ~ .1, forest ~ 0.3)`
 #'
 #' @import ggplot2
+#' @import gt
 #' @export
-tbl_forest <- function(object, ...) {
-	UseMethod("tbl_forest", object = object)
-}
+tbl_group_forests <- function(object,
+															formula = formula(),
+															vars = character(),
+															columns = list(beta ~ "Estimate",
+																						 conf ~ "95% CI",
+																						 n ~ "No."),
+															flip = FALSE,
+															interaction = FALSE,
+															axis = list(scale ~ "continuous"),
+															width = list()) {
 
-#' @export
-tbl_forest.forge <- function(object,
-														 formula = formula(),
-														 vars = character(),
-														 columns = list(beta ~ "Estimate",
-														 							 conf ~ "95% CI",
-														 							 n ~ "No."),
-														 flip = FALSE,
-														 interaction = FALSE,
-														 axis = list(scale ~ "continuous"),
-														 width = list()) {
 
 	# TODO revise how this function works for forge objects versus standard data tables
 	# TODO add ability to extract or filter by formulas from forge objects
 	# TODO how to decide which LEVEL or number to pick in terms of adjusted models
-	# TODO add widths of each column
+
+	# Put into forge object
+	validate_class(object, "forge")
 
 	# Validate formula
 	if (!inherits(formula, "formula")) {
@@ -284,14 +288,15 @@ tbl_forest.forge <- function(object,
 		dplyr::mutate(ggplots = NA) |>
 		dplyr::add_row() |>
 		dplyr::select(level, strata, all_of(mod_vars), all_of(est_vars), ggplots) |>
-		gt::gt(rowname_col = "level", groupname_col = "strata") |>
+		gt(rowname_col = "level", groupname_col = "strata") |>
 		# Estimates and confidence intervals
 		{\(.) {
 			if (all(c("estimate", "conf.low", "conf.high") %in% est_vars)) {
 				. |>
-				gt::cols_merge(columns = est_vars[1:3],
-											 pattern = "{1} ({2}, {3})") |>
-			gt::cols_width(estimate ~ gt::pct(40))
+					cols_merge(columns = est_vars[1:3],
+												 pattern = "{1} ({2}, {3})") |>
+					cols_width(estimate ~ pct(40)) |>
+					cols_label(estimate = cols$beta)
 			} else {
 				.
 			}
@@ -300,7 +305,8 @@ tbl_forest.forge <- function(object,
 		{\(.) {
 			if (all(c("nobs") %in% mod_vars)) {
 				. |>
-				gt::cols_width(nobs ~ gt::pct(10))
+					cols_width(nobs ~ pct(10)) |>
+					cols_label(nobs = cols$n)
 			} else {
 				.
 			}
@@ -309,20 +315,20 @@ tbl_forest.forge <- function(object,
 		{\(.) {
 			if (all(c("p.value") %in% est_vars & isTRUE(interaction))) {
 				. |>
-				gt::cols_move_to_end(p.value) |>
-				gt::tab_style(
-					style = gt::cell_text(color = "white", size = gt::px(0)),
-					locations = gt::cells_body(columns = p.value,
-																		 rows = level == 0)
+				cols_move_to_end(p.value) |>
+				tab_style(
+					style = cell_text(color = "white", size = px(0)),
+					locations = cells_body(columns = p.value,
+																		 rows = level == min(level, na.rm = TRUE))
 				) |>
-				gt::tab_style(
-					style = gt::cell_text(v_align = "bottom"),
-					locations = gt::cells_body(columns = p.value,
-																		 rows = level == 1)
+				tab_style(
+					style = cell_text(v_align = "bottom"),
+					locations = cells_body(columns = p.value,
+																		 rows = level > min(level, na.rm = TRUE))
 				) |>
-				gt::tab_style(
-					style = gt::cell_text(weight = "bold"),
-					locations = gt::cells_body(columns = p.value,
+				tab_style(
+					style = cell_text(weight = "bold"),
+					locations = cells_body(columns = p.value,
 																		 rows = p.value < 0.05)
 				)
 			} else {
@@ -333,70 +339,68 @@ tbl_forest.forge <- function(object,
 		{\(.) {
 			if (all(c("p.value") %in% est_vars)) {
 				. |>
-				gt::cols_move_to_end(p.value) |>
-				gt::tab_style(
-					style = gt::cell_text(weight = "bold"),
-					locations = gt::cells_body(columns = p.value,
+				cols_move_to_end(p.value) |>
+				tab_style(
+					style = cell_text(weight = "bold"),
+					locations = cells_body(columns = p.value,
 																		 rows = p.value < 0.05)
 				)
 			} else {
 				.
 			}
 		}}() |>
-		gt::tab_style(
+		tab_style(
 			style = list(
-				gt::cell_borders(sides = "all", color = NULL)
+				cell_borders(sides = "all", color = NULL)
 			),
 			locations = list(
-				gt::cells_body(columns = c(all_of(mod_vars), all_of(est_vars))),
-				gt::cells_stub(rows = gt::everything())
+				cells_body(columns = c(all_of(mod_vars), all_of(est_vars))),
+				cells_stub(rows = everything())
 			)
 		) |>
-		gt::fmt_number(
+		fmt_number(
 			columns = where(is.numeric),
 			drop_trailing_zeros = TRUE,
 			n_sigfig = 2
 		) |>
-		gt::cols_width(ggplots ~ gt::pct(50)) |>
-		gt::opt_vertical_padding(scale = 0) |>
-		gt::opt_table_outline(style = "none") |>
-		gt::tab_options(
-			data_row.padding = gt::px(0),
-			table_body.border.bottom.width = gt::px(0),
-			table_body.border.top.width = gt::px(0),
-			column_labels.border.top.width = gt::px(0)
+		cols_width(ggplots ~ pct(50)) |>
+		opt_vertical_padding(scale = 0) |>
+		opt_table_outline(style = "none") |>
+		tab_options(
+			data_row.padding = px(0),
+			table_body.border.bottom.width = px(0),
+			table_body.border.top.width = px(0),
+			column_labels.border.top.width = px(0)
 		) |>
-		gt::tab_style(
+		tab_style(
 			style = list(
-				gt::cell_text(color = "white", size = gt::px(0)),
-				gt::cell_borders(sides = "all", color = NULL)
+				cell_text(color = "white", size = px(0)),
+				cell_borders(sides = "all", color = NULL)
 			),
 			locations = list(
-				gt::cells_body(columns = ggplots),
-				gt::cells_row_groups(groups = "NA"),
-				gt::cells_stub(rows = is.na(level))
+				cells_body(columns = ggplots),
+				cells_row_groups(groups = "NA"),
+				cells_stub(rows = is.na(level))
 			)
 		) |>
-		gt::tab_style(
+		tab_style(
 			style = list(
-				gt::cell_text(color = "white", size = gt::px(0))
+				cell_text(color = "white", size = px(0))
 			),
 			locations = list(
-				gt::cells_body(columns = c(all_of(mod_vars), all_of(est_vars)),
+				cells_body(columns = c(all_of(mod_vars), all_of(est_vars)),
 											 rows = is.na(level))
 			)
 		) |>
-		gt::cols_label(
-			estimate = cols$beta,
+		cols_label(
 			ggplots = x_vars$title,
-			nobs = cols$n
 		) |>
-		gt::text_transform(
-			locations = gt::cells_body(columns = ggplots),
+		text_transform(
+			locations = cells_body(columns = ggplots),
 			fn = function(x) {
 				purrr::map(plots$gg,
-									 gt::ggplot_image,
-									 height = gt::px(50),
+									 ggplot_image,
+									 height = px(50),
 									 aspect_ratio = 5)
 			}
 		)
@@ -412,27 +416,28 @@ tbl_forest.forge <- function(object,
 #' `gt` package is allowed.
 #'
 #' @inheritParams gt::tab_options
-#' @param ... For passing additional arguments to the [gt::tab_options()]
+#' @param ... For passing additional arguments to the [tab_options()]
 #'   function
 #' @family visualizers
+#' @importFrom gt tab_options px pct
 #' @export
 theme_gt_compact <- function(data,
-														 table.font.size = gt::pct(80),
-														 table.width = gt::pct(90),
+														 table.font.size = pct(80),
+														 table.width = pct(90),
 														 ...) {
 
 	validate_class(data, "gt_tbl")
 
 	data %>%
-		gt::tab_options(
+		tab_options(
 			# Preset
-			table.margin.left = gt::px(1),
-			table.margin.right = gt::px(1),
-			row_group.padding = gt::px(1),
-			data_row.padding = gt::px(1),
-			footnotes.padding = gt::px(1),
-			source_notes.padding = gt::px(1),
-			stub.border.width = gt::px(1),
+			table.margin.left = px(1),
+			table.margin.right = px(1),
+			row_group.padding = px(1),
+			data_row.padding = px(1),
+			footnotes.padding = px(1),
+			source_notes.padding = px(1),
+			stub.border.width = px(1),
 			# User supplied
 			table.width = table.width,
 			table.font.size = table.font.size,

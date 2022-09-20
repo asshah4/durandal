@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 
-[![CRAN status](https://www.r-pkg.org/badges/version/durandal)](https://CRAN.R-project.org/package=durandal) [![Codecov test coverage](https://codecov.io/gh/asshah4/durandal/branch/main/graph/badge.svg)](https://app.codecov.io/gh/asshah4/durandal?branch=main) [![R-CMD-check](https://github.com/asshah4/durandal/workflows/R-CMD-check/badge.svg)](https://github.com/asshah4/durandal/actions) [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN status](https://www.r-pkg.org/badges/version/durandal)](https://CRAN.R-project.org/package=durandal)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/asshah4/durandal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/asshah4/durandal/actions/workflows/R-CMD-check.yaml)
 
 <!-- badges: end -->
 
@@ -25,7 +27,7 @@ The goal of `durandal` is to cut through many models to understand relationships
 
 ## Installation
 
-You can install the development version of durandal like so:
+You can install the development version of `durandal` like so:
 
 ```{r, eval=FALSE}
 # Install development version

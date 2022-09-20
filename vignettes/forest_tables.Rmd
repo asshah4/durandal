@@ -1,0 +1,131 @@
+---
+title: "Forest Tables"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forest Tables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(durandal)
+library(survival)
+```
+
+# Grouped Forest Tables
+
+In causal-based studies, we tend to look for how covariates may modify the relationship between exposure and outcome. An approach to this is through stratified and interaction analyses.
+
+To help visualize this, we will create a grouped forest plot. As a toy data set, we will use the __lung__ dataset from the `{survival}` package. The toy variables are:
+
+- __age__ = primary exposure
+- __sex__ = strata and interaction term
+- __time__ = survival time
+- __pat.karno__ = Karnofsky score (activity/performance status)
+
+This uses two other packages that are meant to implicitly contain information about terms, and we will not go through the implementation details here. Of note, this toy example could easibly be scaled up to dozens of variables and many orders using the `{arcana}` and `{volundr}` package.
+
+```{r data}
+head(survival::lung)
+
+# Modifying lung to make estimates more pronounced
+lung$age_z <- scale(lung$age)
+lung$pat.karno_z <- scale(lung$pat.karno)
+
+
+# Inital model
+f <- Surv(time, status) ~ age_z + pat.karno_z + sex
+m <- coxph(f, data = lung)
+summary(m)
+```
+
+## Strata
+
+Now, let's reconsider subgroups based on sex.
+
+```{r}
+f <- fmls(
+	Surv(time, status) ~ X(age_z) + pat.karno_z + S(sex),
+	label = list(age ~ "Age (SD)", sex ~ "Sex", pat.karno ~ "Karnofsky Score (SD)")
+)
+
+# Create formula in preparation for stratification
+# Note that sex is not included in the formula here
+print(f)
+```
+
+We can fit the data, and place it into an organized/informative table.
+
+```{r}
+m <- fit(f, .fit = coxph, robust = TRUE, ties = "breslow", data = lung, archetype = TRUE) 
+
+# Here we can see that there are now two models for the strata we indicated
+print(m)
+
+# Into a model table
+x <- mdls(sex_strata = m)
+print(x)
+```
+
+This forged table is the basis for further functions in this package, allowing us the flexibility to retrieve information from models. 
+
+The core function has several parameters that may need additional explanation. Please see the documentation via `?tbl_group_forests`.
+
+```{r, gt table for strata}
+tbl_group_forests(
+	# Forge object
+	object = x,
+	# Notes outcome ~ exposure relationship
+	formula = Surv(time, status) ~ age_z, 
+	# Stratification variable
+	vars = "sex", 
+	# If TRUE, would look for interaction terms instead
+	interaction = FALSE, 
+	# Describes what information we want to see on each model
+	columns = list(beta ~ "Hazard Ratio", conf ~ "95% CI", n ~ "No.", p ~ "P Value"),
+	# Modifications for the forest plot itself 
+	axis = list(title ~ "Forest Plot", lab ~ "HR (95% CI)", scale ~ "continuous", int ~ 1)
+)
+```
+
+We can see here that the strata are by sex, and that the forest plots are scaled automatically. In the next example, will control the axis to help show the data more clearly.
+
+```{r, model setup for interaction}
+m <-
+	rx(Surv(time, status) ~ X(age_z) + pat.karno_z + In(sex)) |>
+	sx(label = list(age ~ "Age (SD)", sex ~ "Sex", pat.karno ~ "Karnofsky Score (SD)")) |>
+	fmls() |>
+	fit(.fit = coxph, robust = TRUE, ties = "breslow", data = lung, archetype = TRUE) 
+
+# Shows the new interaction term that found itself with the key exposure
+print(m)
+
+# Create the table
+x <- mdls(sex_interaction = m)
+print(x)
+```
+
+
+Now, for interaction, we can add the p.value for the interaction effect, as well as adjust the axis a more. Note that the confidence intervals are symmetrical around the central point here, as the x-axis is on a log scale.
+
+```{r, gt table for interaction}
+tbl_group_forests(
+	# Forge object
+	object = x,
+	formula = Surv(time, status) ~ age_z, 
+	vars = "sex", 
+	interaction = TRUE, 
+	columns = list(beta ~ "Hazard Ratio", conf ~ "95% CI", n ~ "No.", p ~ "P Value"),
+	axis = list(title ~ "Forest Plot", lab ~ "HR (95% CI)", scale ~ "log", int ~ 1, breaks ~ c(0, 1, 2), lim ~ c(0.5, 2))
+)
+```
+
+
+

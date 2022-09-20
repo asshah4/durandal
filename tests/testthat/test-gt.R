@@ -1,3 +1,30 @@
+test_that("inputs are appropriate for grouped forest tables", {
+	object <-
+		sx(mpg ~ X(wt) + S(vs) + S(am), pattern = "direct") |>
+		fmls(
+			label = list(mpg ~ "Mileage", vs ~ "Vroom Sounds", am ~ "Automatic Transmission"),
+			order = 2
+		) |>
+		fit(.fit = lm, data = mtcars, archetype = TRUE) |>
+		mdls()
+
+	tbl_1 <- tbl_group_forests(
+		object,
+		formula = mpg ~ wt,
+		vars = c("vs", "am"),
+		interaction = FALSE,
+		columns = list(beta ~ "Estimates", conf ~ "95% CI", n ~ "Number"),
+		axis = list(
+			lab ~ "B (95% CI)",
+			lim ~ c(0, 0.1),
+			breaks ~ c(0, .02, .05, .1),
+			scale ~ "continuous",
+			title ~ "Forest Plots"
+		)
+	)
+	expect_s3_class(tbl_1, "gt_tbl")
+})
+
 test_that("subgroup models can be made, with a forest plot", {
 
 	# Outcome = am
@@ -23,7 +50,7 @@ test_that("subgroup models can be made, with a forest plot", {
 	columns = list(beta ~ "Estimates", conf ~ "95% CI", n ~ "Number")
 	axis = list(lab ~ "B (95% CI)", lim ~ c(0, 0.1), breaks ~ c(0, .02, .05, .1), scale ~ "continuous")
 
-	tbl <- tbl_forest.forge(
+	tbl <- tbl_group_forests(
 		object = object,
 		formula = formula,
 		vars = vars,
@@ -59,7 +86,7 @@ test_that("interaction terms can be used for forest plots", {
 	columns = list(beta ~ "Estimates", conf ~ "95% CI", n ~ "Number", p ~ "p-value")
 	axis = list(lab ~ "B (95% CI)", lim ~ c(0, 0.1), breaks ~ c(0, .02, .05, .1), scale ~ "continuous", title ~ "Plots")
 
-	tbl <- tbl_forest(
+	tbl <- tbl_group_forests(
 		object = m,
 		formula = formula,
 		vars = vars,
@@ -84,7 +111,7 @@ test_that("survival models can be made into forest plots", {
 	axis <- list(lim ~ c(0,10), lab ~ "HR (95% CI)", title ~ "Increasing Hazard", breaks ~ c(0,1, 2, 5, 10), int ~ 1, scale ~ "log")
 
 
-	tbl_forest(
+	tbl_group_forests(
 		object,
 		formula = formula,
 		vars = vars,

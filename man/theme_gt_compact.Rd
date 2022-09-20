@@ -4,12 +4,7 @@
 \alias{theme_gt_compact}
 \title{Compact and minimal theme for \code{gt} tables}
 \usage{
-theme_gt_compact(
-  data,
-  table.font.size = gt::pct(80),
-  table.width = gt::pct(90),
-  ...
-)
+theme_gt_compact(data, table.font.size = pct(80), table.width = pct(90), ...)
 }
 \arguments{
 \item{data}{A table object that is created using the \code{\link[gt:gt]{gt()}} function.}
@@ -21,7 +16,7 @@ given in units of pixels. The \code{\link[gt:px]{px()}} and \code{\link[gt:pct]{
 be used to pass in numeric values and obtain values as pixel or percent
 units.}
 
-\item{...}{For passing additional arguments to the \code{\link[gt:tab_options]{gt::tab_options()}}
+\item{...}{For passing additional arguments to the \code{\link[=tab_options]{tab_options()}}
 function}
 }
 \description{
