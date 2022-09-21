@@ -33,7 +33,8 @@ Suggests:
 Remotes:
 		asshah4/arcana,
 		asshah4/volundr
-URL: https://asshah4.github.io/durandal
+URL: https://asshah4.github.io/durandal,
+    https://asshah4.github.io/durandal/
 BugReports: https://github.com/asshah4/durandal/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr
