@@ -12,6 +12,7 @@ Tools for cutting causal pie.
 Useful links:
 \itemize{
   \item \url{https://asshah4.github.io/durandal}
+  \item \url{https://asshah4.github.io/durandal/}
   \item Report bugs at \url{https://github.com/asshah4/durandal/issues}
 }
 

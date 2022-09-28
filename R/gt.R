@@ -12,9 +12,29 @@
 #'   `TRUE`, then will create joint confidence intervals for the presence or
 #'   absence of the interaction term.
 #'
-#' @param interaction Logical value to identify if the model should attempt to
-#'   use interaction terms or not. Currently only accepts binary/dichotomous
-#'   variables as the interaction term.
+#' @param type Character vector to identify if the model was using subgroups or
+#'   interaction terms. The difference is that confidence intervals for
+#'   interaction can be calculated in multiple ways, and the effect size is
+#'   dependent on the presence or absence of the interaction variable.
+#'
+#'   * __interaction__ = assumes an interaction term that is binary/dichotomous
+#'
+#'   * __subgroup__ = assumes a categorical variable that was used to group the
+#'   original dataset
+#'
+#' @param level List of formulas. Each list-element is a formula with the LHS
+#'   reflecting either the variable to re-label or a specific level, and the RHS
+#'   reflecting what the new level should be called (for display). If there are
+#'   conflicting labels, the most recent will be used.
+#'
+#'   For example, `list(am ~ c("Manual", "Automatic")` would take, from the
+#'   `mtcars` dataset, the `am` variable, which consists of `c(0, 1)`, and
+#'   relabel them in the order described. They are sorted in ascendiing order
+#'   prior to re-labeling.
+#'
+#'   The alternative approach is to use the specific level itself and have it
+#'   re-labeled. `list(0 ~ "Absent")` would take all levels that are zero, and
+#'   change their value.
 #'
 #' @param columns Additional columns that help to describe the subgroup models.
 #'   At least one column should be selected from this list. The sequence listed
@@ -64,13 +84,14 @@
 #' @import gt
 #' @export
 tbl_group_forests <- function(object,
-															formula = formula(),
-															vars = character(),
+															formula,
+															type,
+															vars,
+															level = list(),
 															columns = list(beta ~ "Estimate",
 																						 conf ~ "95% CI",
 																						 n ~ "No."),
 															flip = FALSE,
-															interaction = FALSE,
 															axis = list(scale ~ "continuous"),
 															width = list()) {
 
@@ -79,7 +100,6 @@ tbl_group_forests <- function(object,
 	# TODO add ability to extract or filter by formulas from forge objects
 	# TODO how to decide which LEVEL or number to pick in terms of adjusted models
 
-	# Put into forge object
 	validate_class(object, "forge")
 
 	# Validate formula
@@ -88,6 +108,29 @@ tbl_group_forests <- function(object,
 	}
 	y <- lhs(formula)
 	x <- rhs(formula)
+
+	# Validate type and if strata variables are appropriate
+	if (!type %in% c("interaction", "subgroup")) {
+		stop("A single string for type of 'interaction' or 'subgroup' must be selected.")
+	} else {
+		vars_in_models <- vars %in% unlist(object[c("strata", "interaction")], use.names = FALSE)
+		if (!any(vars_in_models)) {
+			stop("The variables selected for ", type, " are not available in the model objects.")
+		} else if (!all(vars_in_models)) {
+			message("The variables `", paste0(vars[!vars_in_models], collapse = ", "), "` are not avaiilable in the model object.")
+		}
+	}
+
+	# Get labels and/or levels
+	lvl <- list()
+	if (length(level) > 0) {
+		for (i in 1:length(level)) {
+			f <- level[[i]]
+			left <- as.character(f[[2]])
+			right <- as.character(eval(f[[3]]))
+			lvl[[left]] <- right
+		}
+	}
 
 	# Rename selecting columns (for both parameter estimates and model info)
 	cols <- formula_to_named_list(columns)
@@ -106,7 +149,7 @@ tbl_group_forests <- function(object,
 		mod_vars <- append(mod_vars, "nobs")
 	}
 
-	if (interaction) {
+	if (type == "interaction") {
 		# Basic table by interaction
 		tbl_present <-
 			object |>
@@ -138,8 +181,19 @@ tbl_group_forests <- function(object,
 			dplyr::select(exposure, interaction, level, exposure, terms, all_of(est_vars), all_of(mod_vars)) |>
 			dplyr::rename(strata = interaction,
 										term = exposure) |>
-			dplyr::ungroup()
+			dplyr::group_by(strata) |>
+			dplyr::arrange(level)
 
+		# Relabel if needed
+		if (length(lvl) > 0) {
+			for (i in seq_along(lvl)) {
+				if (names(lvl)[i] %in% tbl$strata) {
+					tbl$level[tbl$strata == names(lvl[i])] <- lvl[[i]]
+				} else if (names(lvl)[i] %in% tbl$level) {
+					tbl$level[tbl$level == names(lvl)[i]] <- lvl[[i]]
+				}
+			}
+		}
 	} else {
 		# Basic table by strata
 		tbl <-
