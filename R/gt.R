@@ -124,12 +124,7 @@ tbl_group_forests <- function(object,
 	# Get labels and/or levels
 	lvl <- list()
 	if (length(level) > 0) {
-		for (i in 1:length(level)) {
-			f <- level[[i]]
-			left <- as.character(f[[2]])
-			right <- as.character(eval(f[[3]]))
-			lvl[[left]] <- right
-		}
+		lvl <- formula_to_named_list(level)
 	}
 
 	# Rename selecting columns (for both parameter estimates and model info)
