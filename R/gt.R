@@ -379,7 +379,8 @@ tbl_group_forests <- function(object,
 					style = cell_text(weight = "bold"),
 					locations = cells_body(columns = p.value,
 																		 rows = p.value < 0.05)
-				)
+				) |>
+				cols_label(p.value = cols$p)
 			} else {
 				.
 			}
@@ -393,7 +394,8 @@ tbl_group_forests <- function(object,
 					style = cell_text(weight = "bold"),
 					locations = cells_body(columns = p.value,
 																		 rows = p.value < 0.05)
-				)
+				) |>
+				cols_label(p.value = cols$p)
 			} else {
 				.
 			}
