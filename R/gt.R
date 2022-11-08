@@ -176,8 +176,8 @@ tbl_group_forests <- function(object,
 			dplyr::select(exposure, interaction, level, exposure, terms, all_of(est_vars), all_of(mod_vars)) |>
 			dplyr::rename(strata = interaction,
 										term = exposure) |>
-			dplyr::group_by(strata) |>
-			dplyr::arrange(level)
+			dplyr::group_by(strata, level) |>
+			dplyr::arrange(strata)
 
 		# Relabel if needed
 		if (length(lvl) > 0) {
@@ -371,7 +371,7 @@ tbl_group_forests <- function(object,
 																		 rows = level == min(level, na.rm = TRUE))
 				) |>
 				tab_style(
-					style = cell_text(v_align = "top"),
+					style = cell_text(v_align = "bottom"),
 					locations = cells_body(columns = p.value,
 																		 rows = level > min(level, na.rm = TRUE))
 				) |>

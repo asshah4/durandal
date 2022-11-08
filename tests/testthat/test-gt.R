@@ -162,10 +162,12 @@ test_that("survival models can be made into forest plots", {
 
 	# External data set in forge format
 	object <- readRDS("../mims/_targets/objects/subgroup_models")
-	formula <- Surv(death_timeto, death_cv_yn) ~ hf_stress_rest_delta_zn
+	formula <- Surv(death_timeto, death_cv_yn) ~ hf_stress_ln_zn
 	vars <- c("age_median", "female_bl", "blackrace", "hx_diabetes_bl", "gensini_median", "simi", "lvef")
 	columns <- list(beta ~ "Hazard Ratio", conf ~ "95% CI", n ~ "No.", p ~ "P value")
 	axis <- list(lim ~ c(0,10), lab ~ "HR (95% CI)", title ~ "Increasing Hazard", breaks ~ c(0,1, 2, 5, 10), int ~ 1, scale ~ "log")
+	type <- "interaction"
+	flip <- TRUE
 
 
 	x <- tbl_group_forests(
