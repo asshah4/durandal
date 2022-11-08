@@ -271,7 +271,7 @@ tbl_group_forests <- function(object,
 			ggplot(.x, aes(x = estimate, y = 0)) +
 				geom_point(size = 50) +
 				geom_linerange(aes(xmax = conf.high, xmin = conf.low, size = 5)) +
-				geom_vline(xintercept = xint, linetype = 3, size = 5) +
+				geom_vline(xintercept = xint, linetype = 3, linewidth = 5) +
 				theme_minimal() +
 				theme(
 					axis.text.y = element_blank(),
@@ -311,11 +311,11 @@ tbl_group_forests <- function(object,
 		xlab(lab) +
 		theme(
 			axis.text.x = element_text(size = 100, margin = margin(10, 0 , 0 , 0)),
-			axis.ticks.x = element_line(size = 5),
+			axis.ticks.x = element_line(linewidth = 5),
 			axis.ticks.length.x = unit(30, "pt"),
 			axis.title.x = element_text(size = 150, margin = margin(10, 0, 0 , 0)),
 			axis.line.x = element_line(
-				size = 5,
+				linewidth = 5,
 				arrow = grid::arrow(
 					length = grid::unit(50, "pt"),
 					ends = "both",
@@ -362,7 +362,7 @@ tbl_group_forests <- function(object,
 		}}() |>
 		# P.value is included for interactions
 		{\(.) {
-			if (all(c("p.value") %in% est_vars & isTRUE(interaction))) {
+			if (all(c("p.value") %in% est_vars & isTRUE(type == "interaction"))) {
 				. |>
 				cols_move_to_end(p.value) |>
 				tab_style(
@@ -371,7 +371,7 @@ tbl_group_forests <- function(object,
 																		 rows = level == min(level, na.rm = TRUE))
 				) |>
 				tab_style(
-					style = cell_text(v_align = "bottom"),
+					style = cell_text(v_align = "top"),
 					locations = cells_body(columns = p.value,
 																		 rows = level > min(level, na.rm = TRUE))
 				) |>
@@ -479,7 +479,7 @@ theme_gt_compact <- function(data,
 
 	validate_class(data, "gt_tbl")
 
-	data %>%
+	data |>
 		tab_options(
 			# Preset
 			table.margin.left = px(1),
