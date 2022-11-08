@@ -326,6 +326,15 @@ tbl_group_forests <- function(object,
 
 	plots$gg[nrow(plots)] <- list(btm_axis)
 
+
+	# To use to help filter for which variables to modify in grouped rows
+	lowest_lvls <-
+		subset(tbl, select = c(strata, level)) |>
+		dplyr::group_by(strata) |>
+		dplyr::slice_tail() |>
+		dplyr::pull(level) |>
+		unique()
+
 	# Create table
 	tbl |>
 		dplyr::rowwise() |>
@@ -364,23 +373,23 @@ tbl_group_forests <- function(object,
 		{\(.) {
 			if (all(c("p.value") %in% est_vars & isTRUE(type == "interaction"))) {
 				. |>
-				cols_move_to_end(p.value) |>
-				tab_style(
-					style = cell_text(color = "white", size = px(0)),
-					locations = cells_body(columns = p.value,
-																		 rows = level == min(level, na.rm = TRUE))
-				) |>
-				tab_style(
-					style = cell_text(v_align = "bottom"),
-					locations = cells_body(columns = p.value,
-																		 rows = level > min(level, na.rm = TRUE))
-				) |>
-				tab_style(
-					style = cell_text(weight = "bold"),
-					locations = cells_body(columns = p.value,
-																		 rows = p.value < 0.05)
-				) |>
-				cols_label(p.value = cols$p)
+					cols_move_to_end(p.value) |>
+					tab_style(
+						style = cell_text(color = "white", size = px(0)),
+						locations = cells_body(columns = p.value,
+																	 rows = level %in% lowest_lvls)
+					) |>
+					tab_style(
+						style = cell_text(v_align = "bottom"),
+						locations = cells_body(columns = p.value,
+																	 rows = level > min(level, na.rm = TRUE))
+					) |>
+					tab_style(
+						style = cell_text(weight = "bold"),
+						locations = cells_body(columns = p.value,
+																	 rows = p.value < 0.05)
+					) |>
+					cols_label(p.value = cols$p)
 			} else {
 				.
 			}
@@ -389,13 +398,13 @@ tbl_group_forests <- function(object,
 		{\(.) {
 			if (all(c("p.value") %in% est_vars)) {
 				. |>
-				cols_move_to_end(p.value) |>
-				tab_style(
-					style = cell_text(weight = "bold"),
-					locations = cells_body(columns = p.value,
-																		 rows = p.value < 0.05)
-				) |>
-				cols_label(p.value = cols$p)
+					cols_move_to_end(p.value) |>
+					tab_style(
+						style = cell_text(weight = "bold"),
+						locations = cells_body(columns = p.value,
+																	 rows = p.value < 0.05)
+					) |>
+					cols_label(p.value = cols$p)
 			} else {
 				.
 			}
