@@ -183,4 +183,30 @@ test_that("survival models can be made into forest plots", {
 
 })
 
+test_that("survival models can be made into forest plots", {
+	skip("Manual build of test only")
+
+	# External data set in forge format
+	object <- readRDS("../aflubber/_targets/objects/flutter_models")
+	formula <- Surv(death_timeto, death_cv_yn) ~ hf_stress_ln_zn
+	vars <- c("age_median", "female_bl", "blackrace", "hx_diabetes_bl", "gensini_median", "simi", "lvef_reduced", "cohort")
+	level <- list(cohort ~ c("MIMS", "MIPS"), 0 ~ "Absent", 1 ~ "Present")
+	columns <- list(beta ~ "Hazard Ratio", conf ~ "95% CI", n ~ "No.", p ~ "P value")
+	axis <- list(lim ~ c(0,10), lab ~ "HR (95% CI)", title ~ "Increasing Hazard", breaks ~ c(0,1, 2, 5, 10), int ~ 1, scale ~ "log")
+	type <- "interaction"
+	flip <- TRUE
+
+
+	x <- tbl_group_forests(
+		object,
+		formula = formula,
+		vars = vars,
+		columns = columns,
+		axis = axis,
+		flip = TRUE,
+		type = "interaction"
+	)
+
+})
+
 
