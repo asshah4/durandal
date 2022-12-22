@@ -10,3 +10,4 @@
 ^codecov\.yml$
 R/dev\.R$
 ^sandbox\.R$
+^data-raw$

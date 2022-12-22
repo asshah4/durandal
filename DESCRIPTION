@@ -13,7 +13,7 @@ Description: Tools for cutting causal pie.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Depends:
     R (>= 4.0),
     vctrs (>= 0.3.8),
