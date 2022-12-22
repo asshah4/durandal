@@ -6,7 +6,7 @@
 #'
 #' `r lifecycle::badge('experimental')`
 #'
-#' @param x An object that can be coerced to a `.terms` object.
+#' @param x An object that can be coerced to a `trms` object.
 #'
 #' @param side states the side of the formula the variable belongs on:
 #'
@@ -53,10 +53,10 @@
 #' @param label Display-quality label describing the variable
 #'
 #' @param description Option for further descriptions or definitions needed for
-#'   the .terms, potentially part of a data dictionary
+#'   the trms, potentially part of a data dictionary
 #'
 #' @param distribution If its associated with a data vector, describes the
-#'   distribution pattern of the original .terms
+#'   distribution pattern of the original trms
 #'
 #' @param class Class of the variable itself, either expected or measured, such
 #'   as `character` or `numeric` or `factor`
@@ -84,14 +84,14 @@
 #'
 #' @name terms
 #' @export
-.terms <- function()
+trms <- function()
 
 ### Record definition ---------------------------------------------------------
 
 #' record of formula rune
 #' @keywords internal
 #' @noRd
-new_terms <- function(x = character(),
+new_trms <- function(x = character(),
 											role = character(),
 											label = character(),
 											level = character(),
@@ -129,10 +129,10 @@ new_terms <- function(x = character(),
 			"transformation" = transformation,
 			"order" = order
 		),
-		class = ".terms"
+		class = "trms"
 	)
 }
 
 #' @keywords internal
 #' @noRd
-methods::setOldClass(c(".terms", "rcrds_rcrd"))
+methods::setOldClass(c("trms", "rcrds_rcrd"))
