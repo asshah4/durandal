@@ -16,9 +16,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
 Depends:
     R (>= 4.0),
-    vctrs (>= 0.3.8),
-    arcana,
-    volundr
+    vctrs (>= 0.5.0),
 Imports: 
     methods,
     lifecycle,
@@ -34,8 +32,7 @@ Suggests:
 Remotes:
 		asshah4/arcana,
 		asshah4/volundr
-URL: https://asshah4.github.io/durandal,
-    https://asshah4.github.io/durandal/
+URL: https://asshah4.github.io/durandal
 BugReports: https://github.com/asshah4/durandal/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr
