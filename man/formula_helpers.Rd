@@ -2,20 +2,20 @@
 % Please edit documentation in R/list-of-formulas.R
 \name{formula_helpers}
 \alias{formula_helpers}
-\alias{get_left_vars}
-\alias{get_left_side}
-\alias{get_right_vars}
-\alias{get_right_side}
-\title{Tools for working with formulas}
+\alias{lhs}
+\alias{rhs}
+\alias{rhs.formula}
+\alias{lhs.formula}
+\title{Tools for working with formula-like objects}
 \usage{
-get_left_vars(x)
+lhs(x, ...)
 
-get_left_side(x)
+rhs(x, ...)
 
-get_right_vars(x)
+\method{rhs}{formula}(x, ...)
 
-get_right_side(x)
+\method{lhs}{formula}(x, ...)
 }
 \description{
-Tools for working with formulas
+Tools for working with formula-like objects
 }

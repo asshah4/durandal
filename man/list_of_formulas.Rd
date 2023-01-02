@@ -7,17 +7,11 @@
 list_of_formulas(...)
 }
 \description{
-Vectorized subclass of the \code{list_of} class from {vctrs::list_of()}
+Vectorized subclass of the \code{list_of} class from \code{\link[vctrs:list_of]{vctrs::list_of()}} that
+utilizes a formula pattern for containing information or relationships.
 }
-\section{Pluralized Arguments}{
-For the arguments that would be dispatched for objects that are plural,
-e.g. containing multiple terms such as a \code{formula} object, the input should
-be wrapped within a \code{list()}.
-
-For example, for the \strong{role} argument, it would be written:
-
-\code{role = list(X ~ "exposure", M ~ "mediator", C ~ "confounder")}
-
-This applies for all others plural objects and arguments.
+\details{
+For arguments that may need to be pluralized, the arguments should be input
+as a formula, or as a list of formulas. The purpose of this format is to give
+multiple descriptions or instructions at once.
 }
-

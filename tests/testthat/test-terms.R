@@ -69,3 +69,31 @@ test_that("new `tm` can be made from character/atomic components", {
 
 })
 
+test_that("terms can be generated from a formula", {
+
+	f1 <- output ~ input + modifier
+	f2 <- output ~ .x(input) + modifier
+	f3 <- output ~ .x(input) + log(modifier) + log(variable) + another
+	expect_equal(lhs(f1), lhs(f2))
+	expect_match(rhs(f2), ".x", all = FALSE)
+
+	group = type = distribution = description = transformation = formula()
+	rl <- input ~ "exposure"
+	lb <- list(output ~ "The Final Outcome", input ~ "The First Mover")
+	allArgs <-
+		list(
+			role = rl,
+			label = lb,
+			group = group,
+			type = type,
+			distribution = distribution,
+			description = description,
+			transformation = transformation
+		)
+
+	tms <- tm(f3, role = rl, label = lb)
+	expect_s3_class(tms, "tm")
+	expect_length(tms, 5)
+	expect_equal(vec_data(tms)$label[1], "The Final Outcome")
+
+})

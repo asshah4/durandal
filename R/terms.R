@@ -29,9 +29,23 @@
 #'
 #' Formulas can be condensed by applying their specific role to individual runes
 #' as a function/wrapper. For example, `y ~ .x(x1) + x2 + x3`. This would
-#' signify that `x1` has the specific role of an exposure.
+#' signify that `x1` has the specific role of an _exposure_.
 #'
-#' @inheritSection list_of_formulas Pluralized Arguments
+#' # Pluralized Arguments
+#'
+#' For a single argument, e.g. for the `tm.formula()` method, such as to
+#' identify variable __X__ as an exposure, a `formula` should be given with the
+#' term of interest on the LHS, and the description or instruction on the RHS.
+#' This would look like `role = X ~ "exposure"`.
+#'
+#' For the arguments that would be dispatched for objects that are plural, e.g.
+#' containing multiple terms, each `formula()` should be placed within a
+#' `list()`. For example, the __role__ argument would be written:
+#'
+#' `role = list(X ~ "exposure", M ~ "mediator", C ~ "confounder")`
+#'
+#' Further implementation details can be seen in the implementation of
+#' [list_of_formulas()].
 #'
 #' @param x An object that can be coerced to a `tm` object.
 #'
@@ -56,10 +70,11 @@
 #'
 #'   * unknown
 #'
-#' @param label Display-quality label describing the variable
+#' @param side Which side of a formula should the term be on. Options are
+#'   `c("left", "right", "meta", "unknown")`. The _meta_ option refers to a term
+#'   that may apply globally to other terms.
 #'
-#' @param level Display-quality levels of categorical variables, defined in a
-#'   `list_of_formula` object
+#' @param label Display-quality label describing the variable
 #'
 #' @param group Grouping variable name for modeling or placing terms together
 #'
@@ -85,8 +100,8 @@ tm <- function(x = unspecified(), ...) {
 #' @export
 tm.character <- function(x,
 												 role = character(),
+												 side = character(),
 												 label = character(),
-												 level = character(),
 												 group = character(),
 												 type = character(),
 												 distribution = character(),
@@ -102,8 +117,8 @@ tm.character <- function(x,
 
 	# Redefine empty variables
 	if (length(role) == 0) role <- "unknown"
+	if (length(side) == 0) side <- "unknown"
 	if (length(label) == 0) label <- NA
-	if (length(level) == 0) level <- NA
 	if (length(group) == 0) group <- NA
 	if (length(type) == 0) type <- NA
 	if (length(distribution) == 0) distribution <- NA
@@ -113,8 +128,8 @@ tm.character <- function(x,
 	# Casting
 	x <- vec_cast(x, character())
 	role <- vec_cast(role, character())
+	side <- vec_cast(side, character())
 	label <- vec_cast(label, character())
-	level <- vec_cast(level, character())
 	group <- vec_cast(group, character())
 	description <- vec_cast(description, character())
 	type <- vec_cast(type, character())
@@ -123,9 +138,9 @@ tm.character <- function(x,
 
 	new_tm(
 		term = x,
+		side = side,
 		role = role,
 		label = label,
-		level = level,
 		group = group,
 		description = description,
 		type = type,
@@ -139,33 +154,12 @@ tm.character <- function(x,
 tm.formula <- function(x,
 											 role = formula(),
 											 label = formula(),
-											 level = formula(),
 											 group = formula(),
 											 type = formula(),
 											 distribution = formula(),
 											 description = formula(),
 											 transformation = formula(),
 											 ...) {
-
-	# Early Break if needed
-	if (length(x) == 0) {
-		return(new_tm())
-	}
-
-}
-
-#' @noRd
-old_formula_to_runes_function <- function(x,
-											 role = formula(),
-											 label = formula(),
-											 level = formula(),
-											 group = formula(),
-											 type = formula(),
-											 distribution = formula(),
-											 description = formula(),
-											 transformation = formula(),
-											 ...) {
-
 
 	# Early Break if needed
 	if (length(x) == 0) {
@@ -173,24 +167,34 @@ old_formula_to_runes_function <- function(x,
 	}
 
 	# Validate arguments and coerce into original assignments
-	# Requires zeallot for more compact code
-	# Arguments
-	all_args <- c(as.list(environment()), list(...))
-	formal_names <- methods::formalArgs(tm.formula)[-c(1, 10)]
-	named_args <- all_args[which(names(all_args) %in% formal_names)]
-	validate_classes(named_args, what = c("list", "formula"))
-	mod_args <- lapply(named_args, list_of_formulas)
-	zeallot::`%<-%`(c(role, label, level, group, type, distribution, description, transformation), mod_args)
+	# Uses zeallot for more compact code
+	allArgs <- c(as.list(environment()), list(...))
+	formalNames <-
+		methods::formalArgs(tm.formula) |>
+		utils::head(-1) |>
+		utils::tail(-1)
+	namedArgs <- allArgs[which(names(allArgs) %in% formalNames)]
+	validate_classes(namedArgs, what = c("list", "formula"))
+	modArgs <- lapply(namedArgs, function(.x) {
+		.y <-
+			list_of_formulas(.x) |>
+			formula()
 
+		sapply(.y, formula_to_named_list)
+	})
+	zeallot::`%<-%`(
+		c(role, label, group, type, distribution, description, transformation),
+		modArgs
+	)
 
-	# All terms are needed to build rx record
+	# Get actual formula components
+	# Check to see if the RHS has any shortcut variables attached
 	left <- lhs(x)
-	right <- rhs(x, tidy = TRUE)
-	all <- c(left, right)
-	n <- length(all)
+	right <- rhs(x)
 
-	# Roles and operations need to be identified (on which terms they apply)
-	right_ops <-
+	# Roles/operations and need to be identified (on which terms they apply)
+	# Output is named list (names = variable, list item = role|op)
+	rightRoles <-
 		x |>
 		all.names() |>
 		{
@@ -199,7 +203,7 @@ old_formula_to_runes_function <- function(x,
 				var_names <- character()
 				var_roles <- character()
 				for (i in seq_along(.x)) {
-					if (.x[i] %in% template_shortcuts) {
+					if (.x[i] %in% .roles) {
 						var_names <- append(var_names, .x[i + 1])
 						var_roles <- append(var_roles, .x[i])
 					}
@@ -211,62 +215,98 @@ old_formula_to_runes_function <- function(x,
 			}
 		}()
 
-	# Warn and validate for interaction (as needs exposure variable)
-	if ("In" %in% right_ops & !("X" %in% right_ops)) {
-		warning("As a specific interaction term was included, an exposure variable must be included as well or this cannot later be expanded to an appropriate formula.")
+	# Supported transformations
+	rightOps <-
+		x |>
+		all.names() |>
+		{
+			\(.x) {
+				# These will be named roles
+				var_names <- character()
+				var_roles <- character()
+				for (i in seq_along(.x)) {
+					if (.x[i] %in% .transformations) {
+						var_names <- append(var_names, .x[i + 1])
+						var_roles <- append(var_roles, .x[i])
+					}
+				}
+
+				names(var_roles) <- var_names
+				var_roles |>
+					as.list()
+			}
+		}()
+
+	# Combine to make supported right side
+	rightSide <- c(rightRoles, rightOps)
+
+	# Remove role/op shortcut from terms (e.g. function in front of term)
+	for (i in seq_along(rightSide)) {
+		right[grepl(names(rightSide)[i], right)] <- names(rightSide)[i]
 	}
 
-	# check to see if it is a "role" or a data transformation
-	which_ops <- right_ops %in% template_shortcuts
-	role_ops <- right_ops[which_ops]
-	data_ops <- right_ops[!which_ops]
+	# Find remaining right hand side variables that do not have a role
+	# Give them the role of a general predictor
+	for (i in seq_along(right)) {
+		if (!(right[i] %in% names(rightRoles))) {
+			rightRoles[right[i]] <- ".p"
+		}
+	}
 
-	other <- right[!(right %in% names(role_ops))]
-	other_ops <- rep("predictor", length(other))
-	names(other_ops) <- other
-	other_ops <- as.list(other_ops)
+	# Warn and validate for interaction (as needs exposure variable)
+	if (".i" %in% rightSide & !(".x" %in% rightSide)) {
+		warning(
+			"In interaction term was specified but was not attached to a specific exposure. The result will treat the interaction term as a regular predictor/covariate."
+		)
+	}
 
-	left_ops <- rep("outcome", length(left))
-	names(left_ops) <- left
-	left_ops <- as.list(left_ops)
+	# Add roles for left hand side and combine into a list of all roles
+	leftRoles <- rep(".o", length(left))
+	names(leftRoles) <- left
+	leftRoles <- as.list(leftRoles)
+	roleList <- c(leftRoles, rightRoles) # All roles for all terms
 
-	role_ops <- c(role_ops, left_ops, other_ops)
 
 	# Interaction term is already included by name
-	for (i in seq_along(role_ops)) {
-		if (role_ops[[i]] == "O") {
-			role_ops[[i]] <- "outcome"
+	for (i in seq_along(roleList)) {
+		if (roleList[[i]] == ".o") {
+			roleList[[i]] <- "outcome"
 		}
-		if (role_ops[[i]] == "X") {
-			role_ops[[i]] <- "exposure"
-		}
-
-		if (role_ops[[i]] == "M") {
-			role_ops[[i]] <- "mediator"
+		if (roleList[[i]] == ".x") {
+			roleList[[i]] <- "exposure"
 		}
 
-		if (role_ops[[i]] == "C") {
-			role_ops[[i]] <- "confounder"
+		if (roleList[[i]] == ".m") {
+			roleList[[i]] <- "mediator"
 		}
 
-		if (role_ops[[i]] == "S") {
-			role_ops[[i]] <- "strata"
+		if (roleList[[i]] == ".c") {
+			roleList[[i]] <- "confounder"
 		}
 
-		if (role_ops[[i]] == "In") {
-			role_ops[[i]] <- "interaction"
+		if (roleList[[i]] == ".p") {
+			roleList[[i]] <- "predictor"
+		}
+
+		if (roleList[[i]] == ".s") {
+			roleList[[i]] <- "strata"
+		}
+
+		if (roleList[[i]] == ".i") {
+			roleList[[i]] <- "interaction"
 		}
 	}
 
-	# create tm
+	# Setup to create new terms using all elements of original formula
+	both <- c(left, right)
 	tm_vector <- new_tm()
 
-	for (i in 1:n) {
+	for (i in 1:length(both)) {
 		# make parameters
-		t <- all[i]
+		t <- both[i]
 
-		# Sides and meta tm
-		side <- if (t %in% names(role_ops[role_ops == "strata"])) {
+		# Sides
+		sd <- if (t %in% names(roleList[roleList == "strata"])) {
 			"meta"
 		} else if (t %in% left) {
 			"left"
@@ -275,51 +315,42 @@ old_formula_to_runes_function <- function(x,
 		}
 
 		# Data transforms
-		op <- if (t %in% names(data_ops)) {
-			data_ops[[t]]
+		op <- if (t %in% names(rightOps)) {
+			rightOps[[t]]
 		} else {
 			NA
 		}
 
-		# Roles
-		role <- if (t %in% names(role_ops)) {
-			role_ops[[t]]
-		} else {
-			NA
-		}
+		# Roles (every term has a role)
+		rl <- roleList[[t]]
 
-		# Tiers
-		tier <-
-			if (t %in% names(tiers) & t %in% names(role_ops[role_ops %in% c("exposure", "mediator", "strata", "outcome")])) {
-				message(
-					"The tm `",
-					t,
-					"` cannot be given a tier as it is not an ordinary predictor."
-				)
-			} else if (t %in% names(tiers)) {
-				tiers[[t]]
+		# groups
+		grp <-
+			if (t %in% names(group)) {
+				groups[[t]]
 			} else {
 				NA
 			}
 
 		# Labels
-		lab <- if (t %in% names(labels)) {
-			labels[[t]]
+		lb <- if (t %in% names(label)) {
+			label[[t]]
 		} else {
 			NA
 		}
 
 		# place into rx list after casting appropriate classes
-		rn <- rx.character(
-			x = vec_cast(t, character()),
-			side = vec_cast(side, character()),
-			role = vec_cast(role, character()),
-			tier = vec_cast(tier, character()),
-			operation = vec_cast(op, character()),
-			label = vec_cast(lab, character())
+		tm_vector <- append(
+			tm_vector,
+			tm.character(
+				x = vec_cast(t, character()),
+				role = vec_cast(rl, character()),
+				side = vec_cast(sd, character()),
+				label = vec_cast(lb, character()),
+				group = vec_cast(grp, character()),
+				transformation = vec_cast(op, character()),
+			)
 		)
-
-		tm_vector <- append(tm_vector, rn)
 
 	}
 
@@ -346,9 +377,9 @@ tm.default <- function(x = unspecified(), ...) {
 #' @keywords internal
 #' @noRd
 new_tm <- function(term = character(),
+									 side = character(),
 									 role = character(),
 									 label = character(),
-									 level = character(),
 									 group = character(),
 									 type = character(),
 									 distribution = character(),
@@ -359,6 +390,7 @@ new_tm <- function(term = character(),
 	# Validation
 	vec_assert(term, ptype = character())
 	vec_assert(role, ptype = character())
+	vec_assert(side, ptype = character())
 	vec_assert(label, ptype = character())
 	vec_assert(description, ptype = character())
 	vec_assert(type, ptype = character())
@@ -375,6 +407,7 @@ new_tm <- function(term = character(),
 		list(
 			"term" = term,
 			"role" = role,
+			"side" = side,
 			"label" = label,
 			"description" = description,
 			"type" = type,
@@ -417,7 +450,7 @@ format.tm <- function(x, ...) {
 
 			if (tms$role[i] == "predictor") {
 				t <- tms$term[i]
-				fmt <- append(fmt, cli::col_black())
+				fmt <- append(fmt, cli::col_br_black(t))
 			}
 
 			if (tms$role[i] == "mediator") {
@@ -442,7 +475,7 @@ format.tm <- function(x, ...) {
 
 			if (tms$role[i] == "unknown") {
 				t <- tms$term[i]
-				fmt <- append(fmt, cli::col_br_black())
+				fmt <- append(fmt, cli::col_black(t))
 			}
 
 		}

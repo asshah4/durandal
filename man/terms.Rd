@@ -14,8 +14,8 @@ tm(x = unspecified(), ...)
 \method{tm}{character}(
   x,
   role = character(),
+  side = character(),
   label = character(),
-  level = character(),
   group = character(),
   type = character(),
   distribution = character(),
@@ -28,7 +28,6 @@ tm(x = unspecified(), ...)
   x,
   role = formula(),
   label = formula(),
-  level = formula(),
   group = formula(),
   type = formula(),
   distribution = formula(),
@@ -59,10 +58,11 @@ further details. The options for roles are as below:
 \item unknown
 }}
 
-\item{label}{Display-quality label describing the variable}
+\item{side}{Which side of a formula should the term be on. Options are
+\code{c("left", "right", "meta", "unknown")}. The \emph{meta} option refers to a term
+that may apply globally to other terms.}
 
-\item{level}{Display-quality levels of categorical variables, defined in a
-\code{list_of_formula} object}
+\item{label}{Display-quality label describing the variable}
 
 \item{group}{Grouping variable name for modeling or placing terms together}
 
@@ -106,18 +106,22 @@ interpreted.\tabular{lll}{
 
 Formulas can be condensed by applying their specific role to individual runes
 as a function/wrapper. For example, \code{y ~ .x(x1) + x2 + x3}. This would
-signify that \code{x1} has the specific role of an exposure.
+signify that \code{x1} has the specific role of an \emph{exposure}.
 }
 
 \section{Pluralized Arguments}{
-For the arguments that would be dispatched for objects that are plural,
-e.g. containing multiple terms such as a \code{formula} object, the input should
-be wrapped within a \code{list()}.
+For a single argument, e.g. for the \code{tm.formula()} method, such as to
+identify variable \strong{X} as an exposure, a \code{formula} should be given with the
+term of interest on the LHS, and the description or instruction on the RHS.
+This would look like \code{role = X ~ "exposure"}.
 
-For example, for the \strong{role} argument, it would be written:
+For the arguments that would be dispatched for objects that are plural, e.g.
+containing multiple terms, each \code{formula()} should be placed within a
+\code{list()}. For example, the \strong{role} argument would be written:
 
 \code{role = list(X ~ "exposure", M ~ "mediator", C ~ "confounder")}
 
-This applies for all others plural objects and arguments.
+Further implementation details can be seen in the implementation of
+\code{\link[=list_of_formulas]{list_of_formulas()}}.
 }
 

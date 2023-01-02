@@ -1,25 +1,20 @@
+### Class definition ----------------------------------------------------------
+
 #' List of formulas
 #'
-#' Vectorized subclass of the `list_of` class from {vctrs::list_of()}
+#' Vectorized subclass of the `list_of` class from [vctrs::list_of()] that
+#' utilizes a formula pattern for containing information or relationships.
 #'
-#' # Pluralized Arguments
-#'
-#' For the arguments that would be dispatched for objects that are plural,
-#' e.g. containing multiple terms such as a `formula` object, the input should
-#' be wrapped within a `list()`.
-#'
-#' For example, for the __role__ argument, it would be written:
-#'
-#' `role = list(X ~ "exposure", M ~ "mediator", C ~ "confounder")`
-#'
-#' This applies for all others plural objects and arguments.
+#' For arguments that may need to be pluralized, the arguments should be input
+#' as a formula, or as a list of formulas. The purpose of this format is to give
+#' multiple descriptions or instructions at once.
 #'
 #' @name list_of_formulas
 #' @export
 list_of_formulas <- function(...) {
 
 	# Early break
-	if (missing(..1)) {
+	if (missing(..1) | length(..1) == 0) {
 		return(new_list_of_formulas())
 	}
 
@@ -38,10 +33,6 @@ list_of_formulas <- function(...) {
 
 		}
 	)
-
-	#left <- get_left_side(x)
-	##right <- get_right_side(x)
-	#stats::reformulate(termlabels = right, response = left)
 
 	new_list_of_formulas(lof)
 
@@ -113,7 +104,7 @@ vec_cast.list_of_formulas.list_of_formulas <- function(x, to, ...) {
 	x
 }
 
-# Formula Helpers ----
+### List Helpers --------------------------------------------------------------
 
 #' @export
 formula.list_of_formulas <- function(x, ...) {
@@ -122,64 +113,100 @@ formula.list_of_formulas <- function(x, ...) {
 	for (i in seq_along(x)) {
 		y <- append(y, x[[i]])
 	}
-	lapply(y, FUN = stats::formula)
+
+	# Each element of y will be a character
+	lapply(y, FUN = function(.x) {
+
+		.l <-
+			.x |>
+			strsplit("~") |>
+			unlist() |>
+			head(1) |>
+			trimws() |>
+			{
+				\(.y) gsub('"', "", .y)
+			}()
+
+		.r <-
+			.x |>
+			strsplit("~") |>
+			unlist() |>
+			tail(-1) |>
+			trimws()
+
+		for (i in seq_along(.r)) {
+			if (grepl(' ', .r[i])) {
+				.r[i] <- shQuote(.r)
+			}
+		}
+
+		stats::reformulate(.r, .l)
+	})
 
 }
 
-#' Tools for working with formulas
+#' Take list of formula, and return as a named list (name = LHS, value = RHS)
+#' @export
+formula_to_named_list <- function(x) {
+	stopifnot("Should be applied to individual formulas" = inherits(x, "formula"))
+	nm <- lhs(x)
+	val <- rhs(x)
+	names(val) <- nm
+	as.list(val)
+}
+
+### Formula Helpers -----------------------------------------------------------
+
+#' Tools for working with formula-like objects
 #' @name formula_helpers
 #' @export
-get_left_vars <- function(x) {
-	if (inherits(x, "formula")) {
-		if (length(x) == 2) {
-			res <- character()
-		} else {
-			res <- all.vars(x[[2]])
-		}
-	}
-
-	res
+lhs <- function(x, ...) {
+	UseMethod("lhs", object = x)
 }
 
 #' @rdname formula_helpers
 #' @export
-get_left_side <- function(x) {
-	if (inherits(x, "formula")) {
-		if (length(x) == 2) {
-			res <- character()
-		} else {
-			res <- deparse1(x[[2]])
-		}
-	}
-
-	res
+rhs <- function(x, ...) {
+	UseMethod("rhs", object = x)
 }
 
 #' @rdname formula_helpers
 #' @export
-get_right_vars <- function(x) {
-	if (inherits(x, "formula")) {
-		if (length(x) == 2) {
-			res <- all.vars(x)
-		} else {
-			res <- all.vars(x[[3]])
-		}
-	}
+rhs.formula <- function(x, ...) {
 
-	res
+	# Handles name, call, and character options
+	# Does strip away parentheses
+	y <-
+		x[[length(x)]] |>
+		deparse1() |>
+		strsplit("\\+|-") |>
+		unlist() |>
+		trimws() |>
+		{
+			\(.x) gsub('"', "", .x)
+		}()
+
+	y
 }
 
 #' @rdname formula_helpers
 #' @export
-get_right_side <- function(x) {
-	if (inherits(x, "formula")) {
-		res <-
-			x[[length(x)]] |>
-			deparse1() |>
-			strsplit("\\+|-") |>
-			unlist() |>
-			trimws()
+lhs.formula <- function(x, ...) {
+	if (length(x) == 2) {
+		y <- character()
+	} else if (length(x) == 3) {
+		y <- x[[2]]
 	}
 
-	res
+	z <-
+		y |>
+		deparse1() |>
+		strsplit("\\+|-") |>
+		unlist() |>
+		trimws() |>
+		{
+			\(.x) gsub('"', "", .x)
+		}()
+
+	z
 }

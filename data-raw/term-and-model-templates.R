@@ -9,25 +9,21 @@
 							 "sequential",
 							 "parallel")
 
-.shortcuts <- c(".o",
-								".x",
-								".p",
-								".c",
-								".m",
-								".s",
-								".i")
+.transformations <- c("log")
 
-.roles <- c("outcome",
-						"exposure",
-						"predictor",
-						"confounder",
-						"mediator",
-						"strata",
-						"interaction")
+.roles <- list(
+	"outcome" = ".o",
+	"exposure" = ".x",
+	"predictor" = ".p",
+	"confounder" = ".c",
+	"mediator" = ".m",
+	"strata" = ".s",
+	"interaction" = ".i"
+)
 
 usethis::use_data(.models,
 									.patterns,
-									.shortcuts,
+									.transformations,
 									.roles,
 									internal = TRUE,
 									overwrite = TRUE)
