@@ -1,12 +1,54 @@
 ### Class definition -----------------------------------------------------------
 
+#' Link together two terms
+#' @name links
 #' @export
-link <- function(left = tm(),
-								 right = tm(),
-								 ...) {
+link <- function(x = unspecified(), ...) {
+	UseMethod("link", object = x)
+}
 
-	new_link(left = left, right = right)
+#' @rdname links
+#' @export
+link.character <- function(x, to, ...) {
 
+	# Early break if needed
+	stopifnot("Missing/NA value not accepted for `link` object" = !is.na(x))
+	if (length(x) == 0) {
+		return(new_link())
+	}
+
+	x <- tm(x, side = "right")
+	to <- tm(to, side = "left")
+
+	new_link(left = to, right = x)
+
+}
+
+#' @rdname links
+#' @export
+link.tm <- function(x, to, ...) {
+
+	# Early break if needed
+	stopifnot("Missing/NA value not accepted for `link` object" = !is.na(x))
+	if (length(x) == 0) {
+		return(new_link())
+	}
+
+	new_link(left = to, right = x)
+
+}
+
+#' @rdname links
+#' @export
+link.default <- function(x = unspecified(), ...) {
+	if (length(x) == 0) {
+		return(new_link())
+	}
+
+	stop("`link()` is not defined for a `",
+			 class(x)[1],
+			 "` object.",
+			 call. = FALSE)
 }
 
 #' link record
