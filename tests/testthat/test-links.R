@@ -15,6 +15,4 @@ test_that("appropriate input to get paths", {
 	expect_s3_class(l1, "link")
 	expect_type(as.character(l1), "character")
 
-
-
 })
