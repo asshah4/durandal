@@ -13,10 +13,11 @@ Description: Tools for cutting causal pie.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Depends:
     R (>= 4.0),
     vctrs (>= 0.5.0),
+    volundr,
 Imports: 
     methods,
     lifecycle,
@@ -30,7 +31,6 @@ Suggests:
     knitr,
     rmarkdown
 Remotes:
-		asshah4/arcana,
 		asshah4/volundr
 URL: https://asshah4.github.io/durandal
 BugReports: https://github.com/asshah4/durandal/issues
