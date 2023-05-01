@@ -1,5 +1,5 @@
 Package: durandal
-Title: Causal Chains and Connections
+Title: DAGs using R
 Version: 0.0.0.9000
 Authors@R: 
     person(
@@ -9,7 +9,7 @@ Authors@R:
 	    role = c("aut", "cre"),
 	    comment = c(ORCID = "0000-0002-9729-1558")
     )
-Description: Tools for cutting causal pie.
+Description: Tools for cutting the causal pie. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -17,7 +17,7 @@ RoxygenNote: 7.2.3
 Depends:
     R (>= 4.0),
     vctrs (>= 0.5.0),
-    volundr,
+    volundr (>= 0.1.0),
 Imports: 
     methods,
     lifecycle,
