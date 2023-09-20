@@ -30,4 +30,6 @@ test_that("hazard works", {
 			7 ~ 'Adjust for above + clinical',
 			8 ~ 'Adjust for above + stress testing'
 		)
+
+
 })
