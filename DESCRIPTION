@@ -17,7 +17,7 @@ RoxygenNote: 7.2.3
 Depends:
     R (>= 4.0),
     vctrs (>= 0.5.0),
-    volundr (>= 0.1.0),
+    volundr (>= 0.0.0.900),
 Imports: 
     methods,
     lifecycle,

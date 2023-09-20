@@ -4,9 +4,9 @@
 \name{durandal-package}
 \alias{durandal}
 \alias{durandal-package}
-\title{durandal: Causal Chains and Connections}
+\title{durandal: DAGs using R}
 \description{
-Tools for cutting causal pie.
+Tools for cutting the causal pie.
 }
 \seealso{
 Useful links:
